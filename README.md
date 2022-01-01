@@ -2,6 +2,8 @@
 
 .NET Core library to make it easy to generate Markdown with an object graph.
 
+[![Build and Publish GenMarkdown on NuGet](https://github.com/markjulmar/GenMarkdown/actions/workflows/dotnet.yml/badge.svg)](https://github.com/markjulmar/GenMarkdown/actions/workflows/dotnet.yml)
+
 ## Example code
 
 ```csharp
