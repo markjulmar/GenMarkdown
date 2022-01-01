@@ -1,57 +1,82 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
 namespace Julmar.GenMarkdown
 {
-    public class TableRow : List<MarkdownBlock>
+    public enum ColumnAlignment
     {
-        public TableRow()
-        {
-        }
-
-        public TableRow(int columns)
-        {
-            for (int i = 0; i < columns; i++)
-                Add(string.Empty);            
-        }
+        Default = 0,
+        Left = 0,
+        Center,
+        Right
     }
 
     public class Table : MarkdownBlock, IList<TableRow>
     {
         private readonly List<TableRow> rows = new();
 
-        private int Columns => rows.Max(r => r.Count);
+        public ColumnAlignment[] ColumnAlignments { get; private set; }
+
+        public TableTypes Type { get; set; }
+
+        public Table(TableTypes type, ColumnAlignment[] columns)
+        {
+            Type = type;
+            ColumnAlignments = columns;
+        }
+
+        public Table(TableTypes type, int columnCount)
+        {
+            Type = type;
+            ColumnAlignments = new ColumnAlignment[columnCount];
+        }
+
+        public Table(int columns) : this(TableTypes.Standard, columns)
+        {
+        }
+
+        public Table(ColumnAlignment[] columns) : this(TableTypes.Standard, columns)
+        {
+        }
 
         public override string ToString()
         {
-            return rows.Any(r => r.Any(b => b is not Paragraph)) 
-                ? RenderTableExtension() 
-                : RenderPipeTable();
+            return Type switch
+            {
+                TableTypes.RowExtension => RenderTableExtension(),
+                TableTypes.Standard => RenderPipeTable(),
+                _ => RenderPipeTable()
+            };
         }
 
         private string RenderTableExtension()
         {
+            int columnCount = ColumnAlignments.Length;
+
             var sb = new StringBuilder();
             foreach (var row in rows)
             {
                 sb.AppendLine(":::row:::");
 
-                for (int i = 0; i < Columns; i++)
+                for (int colIndex = 0; colIndex < columnCount; colIndex++)
                 {
-                    if (row.Count > i)
+                    var cell = row.Cells[colIndex];
+
+                    if (cell.ColumnSpan == 1)
                     {
                         sb.AppendLine("    :::column:::");
-                        sb.Append(row[i].ToString() ?? "");
+                        sb.Append(cell.Content ?? "");
                         sb.AppendLine("    :::column-end:::");
                     }
-                    else if (row.Count == i)
+                    else
                     {
-                        int span = Columns - row.Count;
-                        sb.AppendLine($"    :::column span=\"{span}\":::");
-                        sb.Append(row[i].ToString() ?? "");
+                        sb.AppendLine($"    :::column span=\"{cell.ColumnSpan}\":::");
+                        sb.Append(cell.Content ?? "");
                         sb.AppendLine("    :::column-end:::");
+                        colIndex += cell.ColumnSpan - 1;
                     }
                 }
 
@@ -63,18 +88,23 @@ namespace Julmar.GenMarkdown
 
         private string RenderPipeTable()
         {
+            bool requiresExtension = rows.Any(r => r.Cells.Any(tc => tc.ColumnSpan>1));
+            if (requiresExtension)
+                throw new ArgumentException("Cannot render column-spanned content with pipe tables.");
+
+            int columnCount = ColumnAlignments.Length;
+
             var sb = new StringBuilder();
             for (var rowIndex = 0; rowIndex < rows.Count; rowIndex++)
             {
                 var row = rows[rowIndex];
                 sb.Append("|");
-                for (int i = 0; i < Columns; i++)
+                for (int i = 0; i < columnCount; i++)
                 {
                     if (row.Count > i)
                     {
-                        var block = row[i];
-                        sb.Append((block.ToString() ?? "")
-                            .TrimEnd('\r', '\n'));
+                        var block = row[i]?.ToString()??"";
+                        sb.Append(block.TrimEnd('\r', '\n'));
                     }
 
                     sb.Append(" |");
@@ -85,9 +115,22 @@ namespace Julmar.GenMarkdown
                 if (rowIndex == 0)
                 {
                     sb.Append("|");
-                    for (int i = 0; i < Columns; i++)
+                    for (int i = 0; i < columnCount; i++)
                     {
-                        sb.Append("-|");
+                        switch (ColumnAlignments[i])
+                        {
+                            case ColumnAlignment.Center:
+                                sb.Append(":-:");
+                                break;
+                            case ColumnAlignment.Right:
+                                sb.Append("-:");
+                                break;
+                            default: // left
+                                sb.Append("-");
+                                break;
+                        }
+
+                        sb.Append("|");
                     }
                     sb.AppendLine();
                 }

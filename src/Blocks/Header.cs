@@ -1,20 +1,19 @@
-﻿using System;
-
-namespace Julmar.GenMarkdown
+﻿namespace Julmar.GenMarkdown
 {
-    public class Header : MarkdownBlock
+    public class Header : Paragraph
     {
         public int Level { get; set; }
-        public string Text { get; set; }
 
-        public Header(int level, string text)
+        public Header(int level)
         {
             Level = level;
-            Text = text
-                .Replace("\r", "")
-                .Replace("\n", "");
         }
 
-        public override string ToString() => new string('#', Level) + " " + Text + Environment.NewLine;
+        public Header(int level, string text) : base(text)
+        {
+            Level = level;
+        }
+
+        public override string ToString() => new string('#', Level) + " " + base.ToString();
     }
 }

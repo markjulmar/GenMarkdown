@@ -41,8 +41,15 @@ MarkdownDocument doc = new()
         new InlineCode("InlineCode"), " object."
     },
 
+    new Header(2)
+    {
+        "Headers can have ",
+        Text.Bold("inline elements"),
+        " too."
+    },
+
     "Here's an image:",
-    new Image("Some alt text", "../media/image1.png", "A description"),
+    new Image("NuGet logo", "https://www.nuget.org/Content/gallery/img/logo-header.svg", "A description"),
 
     "And a link:",
     new Link("www.microsoft.com", "https://microsoft.com"),
@@ -61,7 +68,7 @@ MarkdownDocument doc = new()
         {
             new Paragraph("Item #3"),
             new Paragraph("With some additional text"),
-            new Image("and an image", "../media/image2.png")
+            new Image("and an image", "https://www.nuget.org/Content/gallery/img/logo-header.svg")
         }
     },
 
@@ -91,14 +98,14 @@ MarkdownDocument doc = new()
     new BlockQuote
     {
         "This is also a quote.",
-        new Image("Image", "../media/image3.png")
+        new Image("Image", "https://www.nuget.org/Content/gallery/img/logo-header.svg")
     },
 
     new Header(2, "Tables"),
 
     "And finally, tables.",
 
-    new Table
+    new Table(3)
     {
         new()
         {
@@ -139,9 +146,11 @@ Or use the explicit Text objects to add plain text or **BoldText** or _ItalicTex
 
 Can inline code with the Text.Code helper - for example: `Program` object.Or use the explicit `InlineCode` object.
 
+## Headers can have **inline elements** too.
+
 Here's an image:
 
-![Some alt text](../media/image1.png "A description")
+![Nuget logo](https://www.nuget.org/Content/gallery/img/logo-header.svg "A description")
 
 And a link:
 
@@ -159,7 +168,7 @@ Here's an example bulleted list.
 * Item #2
 * Item #3
   With some additional text
-  ![and an image](../media/image2.png)
+  ![and an image](https://www.nuget.org/Content/gallery/img/logo-header.svg)
 
 Here's a numbered list.
 
@@ -180,7 +189,7 @@ Some block quotes.
 > This is a quote.
 
 > This is also a quote.
-> ![Image](../media/image3.png)
+> ![Image](https://www.nuget.org/Content/gallery/img/logo-header.svg)
 
 ## Tables
 
@@ -202,9 +211,11 @@ Or use the explicit Text objects to add plain text or **BoldText** or _ItalicTex
 
 Can inline code with the Text.Code helper - for example: `Program` object.Or use the explicit `InlineCode` object.
 
+## Headers can have **inline elements** too.
+
 Here's an image:
 
-![Some alt text](../media/image1.png "A description")
+![Nuget logo](https://www.nuget.org/Content/gallery/img/logo-header.svg "A description")
 
 And a link:
 
@@ -222,7 +233,7 @@ Here's an example bulleted list.
 * Item #2
 * Item #3
   With some additional text
-  ![and an image](../media/image2.png)
+  ![and an image](https://www.nuget.org/Content/gallery/img/logo-header.svg)
 
 Here's a numbered list.
 
@@ -243,7 +254,7 @@ Some block quotes.
 > This is a quote.
 
 > This is also a quote.
-> ![Image](../media/image3.png)
+> ![Image](https://www.nuget.org/Content/gallery/img/logo-header.svg)
 
 ## Tables
 
