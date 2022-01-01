@@ -27,8 +27,6 @@ namespace Julmar.GenMarkdown
                 }
             }
 
-            sb.AppendLine();
-
             return sb.ToString();
         }
 

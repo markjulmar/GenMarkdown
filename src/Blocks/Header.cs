@@ -15,6 +15,6 @@ namespace Julmar.GenMarkdown
                 .Replace("\n", "");
         }
 
-        public override string ToString() => new string('#', Level) + " " + Text + Environment.NewLine + Environment.NewLine;
+        public override string ToString() => new string('#', Level) + " " + Text + Environment.NewLine;
     }
 }

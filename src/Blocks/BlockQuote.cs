@@ -46,7 +46,6 @@ namespace Julmar.GenMarkdown
                 sb.Append(item);
             }
 
-            sb.AppendLine();
             return sb.ToString();
         }
     }
