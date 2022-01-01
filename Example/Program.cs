@@ -8,8 +8,30 @@ namespace Example
         static void Main()
         {
             //MethodExample();
-            //ConstructorExample();
-            TableExample();
+            ConstructorExample();
+            //TableExample();
+
+            //ExampleCodeBlock();
+        }
+
+        private static void ExampleCodeBlock()
+        {
+            var doc = new MarkdownDocument();
+
+            doc.Add(new CodeBlock
+            {
+                "using namespace System;\r\n",
+                "\r\n",
+                "namespace Test\r\n",
+                "{\r\n",
+                "   public static class Program\r\n",
+                "   {\r\n",
+                "       Console.WriteLine(\"Hello World\");\r\n",
+                "   }\r\n",
+                "}\r\n",
+            });
+
+            doc.Write(Console.Out);
         }
 
         private static void TableExample()
@@ -84,7 +106,9 @@ namespace Example
                     Text.Bold("some inline bold text"),
                     " and ",
                     Text.Italic("some inline italics"),
-                    ". There's an explicit converter from strings to create plain text."
+                    ".",
+                    Text.LineBreak,
+                    "There's an explicit converter from strings to create plain text."
                 },
 
                 new Paragraph("Can also have a single paragraph as part of the constructor."),

@@ -104,6 +104,7 @@ namespace Julmar.GenMarkdown
                     if (row.Count > i)
                     {
                         var block = row[i]?.ToString()??"";
+                        block = block.Replace("|", @"\|");
                         sb.Append(block.TrimEnd('\r', '\n'));
                     }
 

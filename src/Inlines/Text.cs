@@ -11,5 +11,6 @@
         public static ItalicText Italic(string text) => new(text);
         public static InlineCode Code(string text) => new InlineCode(text);
         public static InlineLink Link(string text, string url) => new InlineLink(text, url);
+        public static LineBreak LineBreak => new LineBreak();
     }
 }
