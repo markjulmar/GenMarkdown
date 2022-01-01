@@ -4,6 +4,14 @@
     {
         public int Level { get; set; }
 
+        public Header() : this(1)
+        {
+        }
+
+        public Header(string text) : this(1, text)
+        {
+        }
+
         public Header(int level)
         {
             Level = level;
