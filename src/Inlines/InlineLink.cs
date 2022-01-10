@@ -2,7 +2,7 @@
 {
     public class InlineLink : MarkdownInline
     {
-        public string Text { get; set; }
+        public new string Text { get; set; }
         public string Url { get; set; }
 
         public InlineLink(string text, string url)

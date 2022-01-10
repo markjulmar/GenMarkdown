@@ -1,4 +1,6 @@
-﻿namespace Julmar.GenMarkdown
+﻿using System;
+
+namespace Julmar.GenMarkdown
 {
     public class Header : Paragraph
     {
@@ -22,6 +24,11 @@
             Level = level;
         }
 
-        public override string ToString() => new string('#', Level) + " " + base.ToString();
+        public override string ToString() => new string('#', Level) + " " +
+                                             base.ToString()
+                                                 .Replace("\r", "")
+                                                 .Replace("\n", " ")
+                                                 .TrimEnd()
+                                             + Environment.NewLine;
     }
 }
