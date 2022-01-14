@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -16,77 +17,21 @@ namespace Julmar.GenMarkdown
 
     public class Table : MarkdownBlock, IList<TableRow>
     {
-        private readonly List<TableRow> rows = new();
+        protected readonly List<TableRow> rows = new();
 
         public ColumnAlignment[] ColumnAlignments { get; private set; }
 
-        public TableTypes Type { get; set; }
-
-        public Table(TableTypes type, ColumnAlignment[] columns)
+        public Table(ColumnAlignment[] columns)
         {
-            Type = type;
             ColumnAlignments = columns;
         }
 
-        public Table(TableTypes type, int columnCount)
+        public Table(int columnCount)
         {
-            Type = type;
             ColumnAlignments = new ColumnAlignment[columnCount];
         }
 
-        public Table(int columns) : this(TableTypes.Standard, columns)
-        {
-        }
-
-        public Table(ColumnAlignment[] columns) : this(TableTypes.Standard, columns)
-        {
-        }
-
-        public override string ToString()
-        {
-            return Type switch
-            {
-                TableTypes.RowExtension => RenderTableExtension(),
-                TableTypes.Standard => RenderPipeTable(),
-                _ => RenderPipeTable()
-            };
-        }
-
-        private string RenderTableExtension()
-        {
-            int columnCount = ColumnAlignments.Length;
-
-            var sb = new StringBuilder();
-            foreach (var row in rows)
-            {
-                sb.AppendLine(":::row:::");
-
-                for (int colIndex = 0; colIndex < columnCount; colIndex++)
-                {
-                    var cell = row.Cells[colIndex];
-
-                    if (cell.ColumnSpan == 1)
-                    {
-                        sb.AppendLine("    :::column:::");
-                        sb.Append(cell.Content ?? "");
-                        sb.AppendLine("    :::column-end:::");
-                    }
-                    else
-                    {
-                        sb.AppendLine($"    :::column span=\"{cell.ColumnSpan}\":::");
-                        sb.Append(cell.Content ?? "");
-                        sb.AppendLine("    :::column-end:::");
-                        colIndex += cell.ColumnSpan - 1;
-                    }
-                }
-
-                sb.AppendLine(":::row-end:::");
-            }
-
-            return sb.ToString();
-        }
-
-        private string RenderPipeTable()
+        public override void Write(TextWriter writer, MarkdownFormatting formatting)
         {
             bool requiresExtension = rows.Any(r => r.Cells.Any(tc => tc.ColumnSpan>1));
             if (requiresExtension)
@@ -103,12 +48,14 @@ namespace Julmar.GenMarkdown
                 {
                     if (row.Count > i)
                     {
-                        var block = row[i]?.ToString()??"";
+                        var sw = new StringWriter();
+                        row[i]?.Write(sw, formatting);
+                        var block = sw.ToString();
                         block = block.Replace("|", @"\|");
                         sb.Append(block.TrimEnd('\r', '\n'));
                     }
 
-                    sb.Append(" |");
+                    sb.Append("|");
                 }
 
                 sb.AppendLine();
@@ -121,13 +68,13 @@ namespace Julmar.GenMarkdown
                         switch (ColumnAlignments[i])
                         {
                             case ColumnAlignment.Center:
-                                sb.Append(":-:");
+                                sb.Append(":---:");
                                 break;
                             case ColumnAlignment.Right:
-                                sb.Append("-:");
+                                sb.Append("---:");
                                 break;
                             default: // left
-                                sb.Append("-");
+                                sb.Append("---");
                                 break;
                         }
 
@@ -138,7 +85,7 @@ namespace Julmar.GenMarkdown
 
             }
 
-            return sb.ToString();
+            writer.WriteLine(sb);
         }
 
         #region Rows

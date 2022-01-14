@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.IO;
 
 namespace Julmar.GenMarkdown
 {
@@ -15,9 +15,12 @@ namespace Julmar.GenMarkdown
             Description = description;
         }
 
-        public override string ToString() => 
-            (string.IsNullOrEmpty(Description) 
-                ? $"![{AltText}]({ImagePath})" 
-                : $"![{AltText}]({ImagePath} \"{Description}\")") + Environment.NewLine;
+        public override void Write(TextWriter writer, MarkdownFormatting formatting)
+        {
+            writer.Write(Indent);
+            writer.WriteLine(string.IsNullOrEmpty(Description)
+                ? $"![{AltText}]({ImagePath})" : $"![{AltText}]({ImagePath} \"{Description}\")");
+            writer.WriteLine();
+        }
     }
 }

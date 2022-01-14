@@ -1,12 +1,12 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.Text;
+using System.IO;
 
 namespace Julmar.GenMarkdown
 {
     public class Paragraph : MarkdownBlock, IList<MarkdownInline>
     {
-        private readonly List<MarkdownInline> children = new();
+        protected readonly List<MarkdownInline> Children = new();
 
         public Paragraph()
         {
@@ -14,41 +14,38 @@ namespace Julmar.GenMarkdown
 
         public Paragraph(string text)
         {
-            children.Add(new Text(text));
+            Children.Add(new Text(text));
         }
 
         #region List
-        public IEnumerator<MarkdownInline> GetEnumerator() => children.GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable) children).GetEnumerator();
-        public void Add(MarkdownInline item) => children.Add(item);
-        public void Clear() => children.Clear();
-        public bool Contains(MarkdownInline item) => children.Contains(item);
-        public void CopyTo(MarkdownInline[] array, int arrayIndex) => children.CopyTo(array, arrayIndex);
-        public bool Remove(MarkdownInline item) => children.Remove(item);
-        public int Count => children.Count;
+        public IEnumerator<MarkdownInline> GetEnumerator() => Children.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable) Children).GetEnumerator();
+        public void Add(MarkdownInline item) => Children.Add(item);
+        public void Clear() => Children.Clear();
+        public bool Contains(MarkdownInline item) => Children.Contains(item);
+        public void CopyTo(MarkdownInline[] array, int arrayIndex) => Children.CopyTo(array, arrayIndex);
+        public bool Remove(MarkdownInline item) => Children.Remove(item);
+        public int Count => Children.Count;
         public bool IsReadOnly => false;
-        public int IndexOf(MarkdownInline item) => children.IndexOf(item);
-        public void Insert(int index, MarkdownInline item) => children.Insert(index, item);
-        public void RemoveAt(int index) => children.RemoveAt(index);
+        public int IndexOf(MarkdownInline item) => Children.IndexOf(item);
+        public void Insert(int index, MarkdownInline item) => Children.Insert(index, item);
+        public void RemoveAt(int index) => Children.RemoveAt(index);
         public MarkdownInline this[int index]
         {
-            get => children[index];
-            set => children[index] = value;
+            get => Children[index];
+            set => Children[index] = value;
         }
         #endregion
 
-        public override string ToString()
+        public override void Write(TextWriter writer, MarkdownFormatting formatting)
         {
-            var sb = new StringBuilder();
-            
-            foreach (var child in children)
-            {
-                sb.Append(child);
-            }
-            
-            sb.AppendLine();
+            var sw = new StringWriter();
+            foreach (var child in Children)
+                child.Write(sw, formatting);
 
-            return sb.ToString();
+            writer.Write(Indent);
+            writer.WriteLine(sw.ToString().TrimEnd('\r','\n').Replace("\n", "\n"+Indent));
+            writer.WriteLine();
         }
     }
 }

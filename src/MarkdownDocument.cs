@@ -5,11 +5,11 @@ namespace Julmar.GenMarkdown
 {
     public class MarkdownDocument : List<MarkdownBlock>
     {
-        public void Write(TextWriter writer)
+        public virtual void Write(TextWriter writer, MarkdownFormatting formatting = null)
         {
             foreach (var block in this)
             {
-                writer.WriteLine(block.ToString());
+                block.Write(writer, formatting);
             }
         }
 
@@ -17,7 +17,8 @@ namespace Julmar.GenMarkdown
         {
             var sw = new StringWriter();
             Write(sw);
-            return sw.ToString();
+            var s = sw.ToString();
+            return s.Remove(s.Length - 2);
         }
     }
 }

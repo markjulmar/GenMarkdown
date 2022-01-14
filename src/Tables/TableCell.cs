@@ -15,10 +15,5 @@
         }
 
         public static implicit operator TableCell(MarkdownBlock content) => new(content);
-
-        public override string ToString()
-        {
-            return base.ToString();
-        }
     }
 }

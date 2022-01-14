@@ -1,10 +1,18 @@
-﻿using System;
+﻿using System.IO;
 
 namespace Julmar.GenMarkdown
 {
     public class Header : Paragraph
     {
+        /// <summary>
+        /// Header level (1-5)
+        /// </summary>
         public int Level { get; set; }
+
+        /// <summary>
+        /// Optional ID - rendered as {#id}
+        /// </summary>
+        public string Id { get; set; }
 
         public Header() : this(1)
         {
@@ -24,11 +32,20 @@ namespace Julmar.GenMarkdown
             Level = level;
         }
 
-        public override string ToString() => new string('#', Level) + " " +
-                                             base.ToString()
-                                                 .Replace("\r", "")
-                                                 .Replace("\n", " ")
-                                                 .TrimEnd()
-                                             + Environment.NewLine;
+        public override void Write(TextWriter writer, MarkdownFormatting formatting)
+        {
+            var sw = new StringWriter();
+            base.Write(sw, formatting);
+
+            writer.Write(new string('#', Level) + " " +
+                         sw.ToString()
+                             .Replace("\r", "")
+                             .Replace("\n", " ")
+                             .TrimEnd());
+            if (!string.IsNullOrEmpty(Id))
+                writer.Write(" {#" + Id.Trim() + "}");
+            writer.WriteLine();
+            writer.WriteLine();
+        }
     }
 }

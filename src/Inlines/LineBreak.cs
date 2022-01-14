@@ -2,11 +2,10 @@
 
 namespace Julmar.GenMarkdown
 {
-    public class LineBreak : MarkdownInline
+    public class LineBreak : Text
     {
-        public LineBreak()
+        public LineBreak() : base(@"\" + Environment.NewLine)
         {
-            Text = @"\" + Environment.NewLine;
         }
     }
 }

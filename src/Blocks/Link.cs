@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.IO;
 
 namespace Julmar.GenMarkdown
 {
@@ -13,6 +13,10 @@ namespace Julmar.GenMarkdown
             Url = url;
         }
 
-        public override string ToString() => $"[{Text}]({Url}){Environment.NewLine}";
+        public override void Write(TextWriter writer, MarkdownFormatting formatting)
+        {
+            writer.WriteLine($"{Indent}[{Text}]({Url})");
+            writer.WriteLine();
+        }
     }
 }

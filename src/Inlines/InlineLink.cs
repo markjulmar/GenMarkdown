@@ -1,4 +1,6 @@
-﻿namespace Julmar.GenMarkdown
+﻿using System.IO;
+
+namespace Julmar.GenMarkdown
 {
     public class InlineLink : MarkdownInline
     {
@@ -11,6 +13,7 @@
             Url = url;
         }
 
-        public override string ToString() => $"[{Text}]({Url})";
+        public override void Write(TextWriter writer, MarkdownFormatting formatting) 
+            => writer.Write($"[{Text}]({Url})");
     }
 }

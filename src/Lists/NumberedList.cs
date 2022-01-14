@@ -14,6 +14,14 @@
             StartingNumber = startingNumber;
         }
 
-        protected override string GetPrefix(int index) => $"{index + StartingNumber}. ";
+        protected override string GetPrefix(MarkdownFormatting formatting, int index)
+        {
+            int value = formatting?.NumberedListUsesSequence==true
+                ? StartingNumber + index
+                : index == 0
+                    ? StartingNumber
+                    : 1;
+            return $"{value}. ";
+        }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -8,39 +9,57 @@ namespace Julmar.GenMarkdown
 {
     public abstract class MarkdownList : MarkdownBlock, IEnumerable<MarkdownBlock>
     {
-        private readonly List<List<MarkdownBlock>> blocks = new();
+        protected readonly List<List<MarkdownBlock>> Blocks = new();
 
-        protected abstract string GetPrefix(int index);
+        protected abstract string GetPrefix(MarkdownFormatting formatting, int index);
 
-        public override string ToString()
+        public override void Write(TextWriter writer, MarkdownFormatting formatting)
         {
+            string indent = Indent;
+
             var sb = new StringBuilder();
-            for (int i = 0; i < blocks.Count; i++)
+            for (int i = 0; i < Blocks.Count; i++)
             {
-                var block = blocks[i];
-                string prefix = GetPrefix(i);
-                foreach (var item in block)
+                var block = Blocks[i];
+                string prefix = GetPrefix(formatting, i);
+                for (var index = 0; index < block.Count; index++)
                 {
-                    sb.Append(prefix);
-                    prefix = new string(' ', prefix.Length);
-                    sb.Append(item);
+                    if (index > 0)
+                        sb.AppendLine();
+
+                    var item = block[index];
+                    sb.Append(indent + prefix);
+
+                    if (index == 0)
+                        prefix = new string(' ', prefix.Length);
+
+                    var sw = new StringWriter();
+                    item.Write(sw, formatting);
+
+                    sb.AppendLine(sw.ToString()
+                        .TrimEnd('\r', '\n')
+                        .Replace("\n", "\n" + indent+prefix));
                 }
+
+                if (block.Count > 1)
+                    sb.AppendLine();
             }
 
-            return sb.ToString();
+            writer.Write(sb.ToString().TrimEnd('\r', '\n') + Environment.NewLine + Environment.NewLine);
         }
 
-        public void Add(MarkdownBlock item) => blocks.Add(new List<MarkdownBlock> { item });
-        public void Add(params MarkdownBlock[] items) => blocks.Add(new List<MarkdownBlock>(items));
-        public void Clear() => blocks.Clear();
+
+        public void Add(MarkdownBlock item) => Blocks.Add(new List<MarkdownBlock> { item });
+        public void Add(params MarkdownBlock[] items) => Blocks.Add(new List<MarkdownBlock>(items));
+        public void Clear() => Blocks.Clear();
         public bool Contains(MarkdownBlock item) => this.FirstOrDefault(c => c == item) != null;
-        public bool Remove(MarkdownBlock item) => blocks.Any(items => items.Remove(item));
-        public int Count => blocks.Sum(mb => mb.Count);
+        public bool Remove(MarkdownBlock item) => Blocks.Any(items => items.Remove(item));
+        public int Count => Blocks.Sum(mb => mb.Count);
         public int IndexOf(MarkdownBlock item)
         {
-            for (int i = 0; i < blocks.Count; i++)
+            for (int i = 0; i < Blocks.Count; i++)
             {
-                int pos = blocks[i].IndexOf(item);
+                int pos = Blocks[i].IndexOf(item);
                 if (pos >= 0)
                     return pos + i;
             }
@@ -48,15 +67,18 @@ namespace Julmar.GenMarkdown
             return -1;
         }
 
+        public int BlockCount => Blocks.Count;
+        public List<MarkdownBlock> GetBlockSet(int index) => Blocks[index];
+
         private bool GetBlock(int index, out List<MarkdownBlock> mbo, out int startingPos)
         {
-            for (int i = 0; i < blocks.Count; i++)
+            for (int i = 0; i < Blocks.Count; i++)
             {
-                for (int x = 0; x < blocks[i].Count; x++)
+                for (int x = 0; x < Blocks[i].Count; x++)
                 {
                     if (i+x == index)
                     {
-                        mbo = blocks[i];
+                        mbo = Blocks[i];
                         startingPos = x;
                         return true;
                     }
@@ -84,7 +106,7 @@ namespace Julmar.GenMarkdown
             }
         }
 
-        public IEnumerator<MarkdownBlock> GetEnumerator() => blocks.SelectMany(item => item).GetEnumerator();
+        public IEnumerator<MarkdownBlock> GetEnumerator() => Blocks.SelectMany(item => item).GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
 
         public MarkdownBlock this[int index]
