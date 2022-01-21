@@ -1,9 +1,14 @@
 ﻿namespace Julmar.GenMarkdown
 {
+    /// <summary>
+    /// Renders strike-through text - ~~text~~
+    /// </summary>
     public class StrikethroughText : DelimitedText
     {
-        public StrikethroughText(string text) : base("~~", text)
-        {
-        }
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="text">Text to render</param>
+        public StrikethroughText(string text) : base("~~", text) { }
     }
 }

@@ -1,20 +1,33 @@
 ﻿namespace Julmar.GenMarkdown
 {
-    public sealed class MarkdownFormatting
+    /// <summary>
+    /// Optional formatting directives for the markdown library
+    /// </summary>
+    public class MarkdownFormatting
     {
         /// <summary>
-        /// True to use '*' instead of '-' for bulleted lists.
+        /// True to use '*' instead of '-' for unordered lists.
         /// </summary>
-        public bool UseAsterisksForBullets { get; set; }
+        public bool UseAsterisksForBullets;
 
         /// <summary>
         /// Emphasis character ('*' vs. '_')
         /// </summary>
-        public bool UseAsterisksForEmphasis { get; set; }
+        public bool UseAsterisksForEmphasis;
 
         /// <summary>
         /// Numbered lists will always use proper numeric sequence (1.2.3) vs. (1.1.1)
         /// </summary>
-        public bool NumberedListUsesSequence { get; set; }
+        public bool OrderedListUsesSequence;
+
+        /// <summary>
+        /// Headers have '=' row under them instead of '#' prefix.
+        /// </summary>
+        public bool UseAlternateHeaderSyntax;
+
+        /// <summary>
+        /// True to use 4-space indents vs. fenced characters for code blocks.
+        /// </summary>
+        public bool UseIndentsForCodeBlocks;
     }
 }

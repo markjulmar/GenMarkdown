@@ -1,9 +1,14 @@
 ﻿namespace Julmar.GenMarkdown
 {
+    /// <summary>
+    /// Renders superscript text - ^text^
+    /// </summary>
     public class SuperscriptText : DelimitedText
     {
-        public SuperscriptText(string text) : base("^", text)
-        {
-        }
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="text">Text to render</param>
+        public SuperscriptText(string text) : base("^", text) { }
     }
 }

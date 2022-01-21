@@ -8,6 +8,7 @@
 
 The library supports all standard Markdown and several extensions including:
 
+- Bold, Italic, BoldItalic
 - Highlight text
 - Superscript text
 - Subscript text
@@ -23,18 +24,19 @@ Markdown is constructed with _blocks_ and _inlines_. The `MarkdownDocument` obje
 
 ### Example code
 
-Here's an example document with headers and paragraphs.
+Here's an example document with Headings and paragraphs.
 
 ```csharp
 var doc = new MarkdownDocument
 {
-    // Level 1 header (# Example title)
-    new Header(1, "Example title"),
+    // Level 1 Heading (# Example title)
+    new Heading(1, "Example title"),
     
     // Paragraph with some inline bold and italic text
     new Paragraph {
         "This is some text with ", Text.Bold("some inline bold text"), " and ", Text.Italic("some inline italics"),
-        ". There's an implicit converter from strings to create plain text.",
+        ". Here is some ", Text.BoldItalic("bold and italic"), " text. ",
+        "There's an implicit converter from strings to create plain text.",
     },
     
     "Implicit converter works in the initializer too.",
@@ -48,7 +50,7 @@ This will generate the following output:
 ```markdown
 # Example title
 
-This is some text with **some inline bold text** and _some inline italics_. There's an implicit converter from strings to create plain text.
+This is some text with **some inline bold text** and _some inline italics_. Here is some ***bold and italic*** text. There's an implicit converter from strings to create plain text.
 
 Implicit converter works in the initializer too.
 
@@ -62,8 +64,8 @@ The same document can be created through methods:
 
 ```csharp
 var doc = new MarkdownDocument();
-// Level 1 header (# Example title)
-doc.Add(new Header(1, "Example title")); // Paragraph with some inline bold and italic text
+// Level 1 Heading (# Example title)
+doc.Add(new Heading(1, "Example title")); // Paragraph with some inline bold and italic text
 doc.Add(new Paragraph {
     "This is some text with ", Text.Bold("some inline bold text"), " and ",
     Text.Italic("some inline italics"),
@@ -98,9 +100,10 @@ doc.Write(File.OpenWrite("somefile.md"));
 // Customize the output
 doc.Write(Console.Out, 
     new MarkdownFormatting {
-        UseAsterisksForBullets = true,
-        UseAsterisksForEmphasis = true,
-        NumberedListUsesSequence = true
+        UseAsterisksForBullets = true,    // Use '*'' on unordered lists instead of '-'
+        UseAsterisksForEmphasis = true,   // Use '*' to emphasize text instead of '_'
+        OrderedListUsesSequence = true,  // Always use correct sequence on ordered lists instead of '1.'
+        UseAlternateHeadingSyntax = true   // For H1/H2, use older Heading syntax (text + underline)
     });
 
 ```
@@ -112,8 +115,8 @@ The document itself is a writable collection of `MarkdownBlock` objects - you ca
 ```csharp
 var doc = new MarkdownDocument
 {
-    // Level 1 header (# Example title)
-    new Header(1, "Example title"), // Paragraph with some inline bold and italic text
+    // Level 1 Heading (# Example title)
+    new Heading(1, "Example title"), // Paragraph with some inline bold and italic text
     new Paragraph
     {
         "This is some text with ", Text.Bold("some inline bold text"), " and ",
@@ -122,16 +125,16 @@ var doc = new MarkdownDocument
     }
 };
 
-// Modify the header to be ## and add an {#main-header} identifier.
-var header = (Header) doc[0];
-header.Level = 2;
-header.Id = "main-header";
+// Modify the Heading to be ## and add an {#main-Heading} identifier.
+var Heading = (Heading) doc[0];
+Heading.Level = 2;
+Heading.Id = "main-Heading";
 ```
 
 This produces:
 
 ```markdown
-## Example title {#main-header}
+## Example title {#main-Heading}
 
 This is some text with **some inline bold text** and _some inline italics_. There's an implicit converter from strings to create plain text.
 ```
@@ -143,6 +146,7 @@ The library supports several inlines, along with helper methods on the `Text` ob
 | Type | Description |
 |------|-------------|
 | `BoldText` | Creates bolded text. |
+| `BoldItalicText` | Creates bold + italicized text. |
 | `Emoji` | Creates an emoji (:xyz:) |
 | `HighlightText` | Highlights the specified text with `==`. This is an extension and not supported by all Markdown parsers. |
 | `InlineCode` | Displays inline code surrounded by tilde characters. |
@@ -178,6 +182,7 @@ The `Text` type has several helpers to generate the most common types - this rem
 | Helper | Creates |
 |---------------|---------|
 | `Text.Bold` method | `BoldText` object. |
+| `Text.BoldItalic` method | `BoldItalicText` object. |
 | `Text.Italic` method | `ItalicText` object. |
 | `Text.Code` method | `InlineCode` object. |
 | `Text.Link` method | `InlineLink` object. |
@@ -250,27 +255,33 @@ Or use the explicit Text objects to add plain text or **BoldText** or _ItalicTex
 Can inline code with the Text.Code helper - for example: `Program` object.Or use the explicit `InlineCode` object.
 ```
 
-### Header
+### Heading
 
-The `Header` object takes a numeric level (1-5) and generates a Markdown header. It allows inline Markdown as part of the creation and also supports an optional `Id` property which will create the identifier extension on the header (`{#id}`).
+The `Heading` object takes a numeric level (1-5) and generates a Markdown Heading. It allows inline Markdown as part of the creation and also supports an optional `Id` property which will create the identifier extension on the Heading (`{#id}`).
 
 ```csharp
-new Header(1, "Example title"),
+new Heading("Creates an H1 by default"),
+"Some text",
+new Heading(1, "Example title"),
 "Here some example paragraph text under the title.",
-new Header(2) { "Headers can have ", Text.Bold("inline elements"), " too." },
+new Heading(2) { "Headings can have ", Text.Bold("inline elements"), " too." },
 "With some more text.",
-new Header(3, "Or identifiers") { Id = "level3-hdr" },
+new Heading(3, "Or identifiers") { Id = "level3-hdr" },
 "Fini."
 ```
 
 Generates:
 
 ```markdown
+# Creates an H1 by default
+
+Some text
+
 # Example title
 
 Here some example paragraph text under the title.
 
-## Headers can have **inline elements** too.
+## Headings can have **inline elements** too.
 
 With some more text.
 
@@ -302,7 +313,7 @@ new BlockQuote("This is a quote.");
 new BlockQuote
 {
     "This is also a quote.",
-    new Image("Image", "https://www.nuget.org/Content/gallery/img/logo-header.svg")
+    new Image("Image", "https://www.nuget.org/Content/gallery/img/logo-Heading.svg")
 };
 
 new BlockQuote
@@ -317,7 +328,7 @@ new BlockQuote
 > This is a quote.
 
 > This is also a quote.
-> ![Image](https://www.nuget.org/Content/gallery/img/logo-header.svg)
+> ![Image](https://www.nuget.org/Content/gallery/img/logo-Heading.svg)
 
 > This is a quote.
 > With multiple lines
@@ -408,13 +419,13 @@ The `Image` block creates an embedded image in the document, this includes an al
 
 ```csharp
 "Here's an image:",
-new Image("An image representing the NuGet logo", "https://www.nuget.org/Content/gallery/img/logo-header.svg", "A description for the image")
+new Image("An image representing the NuGet logo", "https://www.nuget.org/Content/gallery/img/logo-Heading.svg", "A description for the image")
 ```
 
 ```markdown
 Here's an image:
 
-![An image representing the NuGet logo](https://www.nuget.org/Content/gallery/img/logo-header.svg "A description for the image")
+![An image representing the NuGet logo](https://www.nuget.org/Content/gallery/img/logo-Heading.svg "A description for the image")
 ```
 
 ### Link
@@ -445,9 +456,9 @@ new Table(3)
 {
     new TableRow
     {
-        new TableCell("Header 0"),
-        new TableCell("Header 1"),
-        new TableCell("Header 2"),
+        new TableCell("Heading 0"),
+        new TableCell("Heading 1"),
+        new TableCell("Heading 2"),
     },
     new TableRow
     {
@@ -473,7 +484,7 @@ new Table(3)
 This generates:
 
 ```markdown
-|Header 0|Header 1|Header 2|
+|Heading 0|Heading 1|Heading 2|
 |---|---|---|
 |(0,0)|(0,1)|(0,2)|
 |(1,0)|(1,1)|(1,2)|
@@ -485,7 +496,7 @@ You can simplify the creation by relying on the implicit `TableCell` conversion,
 ```csharp
 new Table(3)
 {
-    new() {"Header 0", "Header 1", "Header 2"},
+    new() {"Heading 0", "Heading 1", "Heading 2"},
     new() { "(0,0)", "(0,1)", "(0,2)" },
     new() { "(1,0)", "(1,1)", "(1,2)" },
     new() { "(2,0)", "(2,1)", "(2,2)" },
@@ -556,16 +567,46 @@ This changes the second row of the generated markdown to include justification h
 |**Susan Green**|C|A|
 ```
 
+### Grid table
+
+A second table type (`GridTable`) conforms to the [GridTableSpec](https://github.com/xoofx/markdig/blob/master/src/Markdig.Tests/Specs/GridTableSpecs.md) for PanDoc. 
+
+> **Warning**
+> This is not a standard Markdown construct and cannot be handled by all Markdown parsers.
+
+This type adds a few additional constructors and properties to control the shape of the produced table.
+
+| **Property** | **Description** |
+|--------------|-----------------|
+| `MaxWidth`   | This controls the max width of the generated table. It defaults to `80` characters. Note that the actual width might vary slightly by one or two characters depending on where text can be wrapped and how columns are split. But it will be close to this value. |
+| `HasHeader`  | This determines whether the first row is considered a _header_ row and rendered as such. It defaults to `false`. |
+
+Both the `TableRow` and `TableCell` objects have a _column span_ property which allow the content to span columns. These are ignored by the `Table` renderer, but supported by the `GridTable` renderer.
+
+> **Note**
+> The spec allows for _row_ spanning as well, but that feature is not implemented here
+> as no parsers currently support it.
+
+Finally, there is a new constructor which takes a `GridColumnDefinition` array to define each column. This allows column widths to be specified as percentages. For example, the following would create a table with three columns:
+
+1. Left justified, sized to content or half remaining space, whichever is smaller.
+1. Centered, sized to content or half remaining space, whichever is smaller,
+1. Left justified, 50% of the space available.
+
+```csharp
+var gridTable = new GridTable(new GridColumnDefinition(), new GridColumnDefinition(ColumnAlignment.Center), new GridColumnDefinition { Width = .5 });
+```
+
 ### Numeric Lists
 
-The `NumberedList` block creates sequenced numeric lists of content. The list itself is a container and can contain different block types including other lists, tables, quotes, etc.
+The `OrderedList` block creates sequenced numeric lists of content. The list itself is a container and can contain different block types including other lists, tables, quotes, etc.
 
 The simplest form of numbered list is text:
 
 ```csharp
-new NumberedList {"One", "Two", "Three" },
-new NumberedList(4) {"Four", "Five", "Six"}, // Can start at a specific number.
-new NumberedList {"One", "Two", "Three"}
+new OrderedList {"One", "Two", "Three" },
+new OrderedList(4) {"Four", "Five", "Six"}, // Can start at a specific number.
+new OrderedList {"One", "Two", "Three"}
 ```
 
 This will generate three lists.
@@ -584,11 +625,11 @@ This will generate three lists.
 1. Three
 ```
 
-Notice that the generator follows Markdown guidelines and emits the sequence "1" for each item unless it has a given starting number. This behavior can be controlled with the `MarkdownFormatting.NumberedListUsesSequence` property:
+Notice that the generator follows Markdown guidelines and emits the sequence "1" for each item unless it has a given starting number. This behavior can be controlled with the `MarkdownFormatting.OrderedListUsesSequence` property:
 
 ```csharp
 // Same list as above:
-doc.Write(Console.Out, new MarkdownFormatting() { NumberedListUsesSequence = true });
+doc.Write(Console.Out, new MarkdownFormatting() { OrderedListUsesSequence = true });
 ```
 
 Will now create:
@@ -610,7 +651,7 @@ Will now create:
 The items in the list are blocks themselves, for example you can have code blocks in the list:
 
 ```csharp
-new NumberedList
+new OrderedList
 {
     "Do this:",
     {
@@ -688,7 +729,7 @@ Another way to keep bits of Markdown together is through the `IndentLevel` prope
 ```csharp
 var doc = new MarkdownDocument
 {
-    new NumberedList
+    new OrderedList
     {
         "Item #1",
         "Item #2"
@@ -696,7 +737,7 @@ var doc = new MarkdownDocument
 
     new BlockQuote("A quote is here"),
 
-    new NumberedList(3)
+    new OrderedList(3)
     {
         "Item #3",
         "Item #4"
@@ -719,7 +760,7 @@ The intent here is to have a 1-4 sequence, however the block quote in the middle
 This isn't _wrong_, but it will not look quite right as the quote block won't be indented. One way to fix it would be to include it into the numbered list directly as a sibling of "Item #2":
 
 ```csharp
-new NumberedList
+new OrderedList
 {
     "Item #1",
     {
@@ -734,7 +775,7 @@ However, another way to solve this is to set the `IndentLevel` onto the block qu
 ```csharp
 var doc = new MarkdownDocument
 {
-    new NumberedList
+    new OrderedList
     {
         "Item #1",
         "Item #2"
@@ -743,7 +784,7 @@ var doc = new MarkdownDocument
     // Set the indent level to '1' to push this under the list.
     new BlockQuote("A quote is here") { IndentLevel = 1},
 
-    new NumberedList(3)
+    new OrderedList(3)
     {
         "Item #3",
         "Item #4"
@@ -767,17 +808,17 @@ The `IndentLevel` property must be between 0 and 3 and each level will push the 
 
 ### Bullet lists
 
-The `BulletedList` is identical to the `NumberedList` except it doesn't sequence items, but instead prefaces them with a dash to create a bulleted list. Here's an example:
+The `List` is identical to the `OrderedList` except it doesn't sequence items, but instead prefaces them with a dash to create a bulleted list. Here's an example:
 
 ```csharp
-new BulletedList
+new List
 {
     new Paragraph { "Item #1 - ", Text.Link("google.com", "https://google.com"), "." },
     new Paragraph("Item #2"),
     {
         new Paragraph("Item #2.5"),
         new Paragraph("With some additional text"),
-        new Image("and an image", "https://www.nuget.org/Content/gallery/img/logo-header.svg"),
+        new Image("and an image", "https://www.nuget.org/Content/gallery/img/logo-Heading.svg"),
         new CodeBlock
         {
             "using namespace System;\r\n",
@@ -812,7 +853,7 @@ This generates
 
   With some additional text
 
-  ![and an image](https://www.nuget.org/Content/gallery/img/logo-header.svg)
+  ![and an image](https://www.nuget.org/Content/gallery/img/logo-Heading.svg)
 
   ```
   using namespace System;

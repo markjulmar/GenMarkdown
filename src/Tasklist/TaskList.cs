@@ -1,15 +1,25 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
+using System.Linq;
 
 namespace Julmar.GenMarkdown
 {
-    public class TaskList : MarkdownBlock, ICollection<TaskItem>
+    /// <summary>
+    /// This generates a Markdown Task list
+    /// - [ ] Item 1
+    /// - [x] Item 2
+    /// - [ ] Item 3
+    /// </summary>
+    public class TaskList : MarkdownBlockCollection<TaskItem>
     {
-        protected readonly List<TaskItem> Children = new();
-
+        /// <summary>
+        /// Writes the block to the given TextWriter.
+        /// </summary>
+        /// <param name="writer">writer</param>
+        /// <param name="formatting">optional formatting</param>
         public override void Write(TextWriter writer, MarkdownFormatting formatting)
         {
+            if (!Children.Any()) return;
+
             foreach (var child in Children)
             {
                 child.IndentLevel = this.IndentLevel;
@@ -18,15 +28,5 @@ namespace Julmar.GenMarkdown
 
             writer.WriteLine();
         }
-
-        public IEnumerator<TaskItem> GetEnumerator() => Children.GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)this).GetEnumerator();
-        public void Add(TaskItem item) => Children.Add(item);
-        public void Clear() => Children.Clear();
-        public bool Contains(TaskItem item) => Children.Contains(item);
-        public void CopyTo(TaskItem[] array, int arrayIndex) => Children.CopyTo(array, arrayIndex);
-        public bool Remove(TaskItem item) => Children.Remove(item);
-        public int Count => Children.Count;
-        public bool IsReadOnly => false;
     }
 }

@@ -1,15 +1,25 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
+using System.Linq;
 
 namespace Julmar.GenMarkdown
 {
-    public class DefinitionList : MarkdownBlock, ICollection<Definition>
+    /// <summary>
+    /// This creates a markdown definition list
+    /// Text
+    /// : Definition 1
+    /// : Definition 2
+    /// </summary>
+    public class DefinitionList : MarkdownBlockCollection<Definition>
     {
-        protected readonly List<Definition> Children = new();
-
+        /// <summary>
+        /// Writes the block to the given TextWriter.
+        /// </summary>
+        /// <param name="writer">writer</param>
+        /// <param name="formatting">optional formatting</param>
         public override void Write(TextWriter writer, MarkdownFormatting formatting)
         {
+            if (!Children.Any()) return;
+
             foreach (var child in Children)
             {
                 child.IndentLevel = this.IndentLevel;
@@ -17,17 +27,5 @@ namespace Julmar.GenMarkdown
                 writer.WriteLine();
             }
         }
-
-        #region Collection
-        public IEnumerator<Definition> GetEnumerator() => Children.GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)Children).GetEnumerator();
-        public void Add(Definition item) => Children.Add(item);
-        public void Clear() => Children.Clear();
-        public bool Contains(Definition item) => Children.Contains(item);
-        public void CopyTo(Definition[] array, int arrayIndex) => Children.CopyTo(array, arrayIndex);
-        public bool Remove(Definition item) => Children.Remove(item);
-        public int Count => Children.Count;
-        public bool IsReadOnly => false;
-        #endregion
     }
 }

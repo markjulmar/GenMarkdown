@@ -6,8 +6,10 @@
     /// </summary>
     public class Emoji : DelimitedText
     {
-        public Emoji(string emoji) : base(":", emoji?.Trim())
-        {
-        }
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="emoji">Emoji to render</param>
+        public Emoji(string emoji) : base(":", emoji?.Trim()) { }
     }
 }

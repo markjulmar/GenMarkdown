@@ -1,42 +1,29 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Text;
 
 namespace Julmar.GenMarkdown
 {
-    public class BlockQuote : MarkdownBlock, IList<MarkdownBlock>
+    /// <summary>
+    /// This generates a Markdown quote
+    /// > Text
+    /// </summary>
+    public class BlockQuote : MarkdownBlockCollection<MarkdownBlock>
     {
-        protected readonly List<MarkdownBlock> Children = new();
-
+        /// <summary>
+        /// Constructor usable with array syntax creation
+        /// </summary>
         public BlockQuote()
         {
         }
 
+        /// <summary>
+        /// Constructor which takes an initial block of text.
+        /// </summary>
+        /// <param name="text">Text to create a quote from.</param>
         public BlockQuote(string text)
         {
             Children.Add(text);
         }
-
-        #region List
-        public IEnumerator<MarkdownBlock> GetEnumerator() => Children.GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable) Children).GetEnumerator();
-        public void Add(MarkdownBlock item) => Children.Add(item);
-        public void Clear() => Children.Clear();
-        public bool Contains(MarkdownBlock item) => Children.Contains(item);
-        public void CopyTo(MarkdownBlock[] array, int arrayIndex) => Children.CopyTo(array, arrayIndex);
-        public bool Remove(MarkdownBlock item) => Children.Remove(item);
-        public int Count => Children.Count;
-        public bool IsReadOnly => false;
-        public int IndexOf(MarkdownBlock item) => Children.IndexOf(item);
-        public void Insert(int index, MarkdownBlock item) => Children.Insert(index, item);
-        public void RemoveAt(int index) => Children.RemoveAt(index);
-        public MarkdownBlock this[int index]
-        {
-            get => Children[index];
-            set => Children[index] = value;
-        }
-        #endregion
 
         /// <summary>
         /// Writes the block to the given TextWriter.
@@ -53,7 +40,9 @@ namespace Julmar.GenMarkdown
                 var sw = new StringWriter();
                 item.Write(sw, formatting);
 
-                sb.Append(indent + "> ")
+                bool isNestedQuote = item is BlockQuote;
+
+                sb.Append(indent + (isNestedQuote ? ">" : "> "))
                     .AppendLine(sw.ToString()
                         .TrimEnd('\r', '\n')
                         .Replace("\n", "\n" + indent + "> "));

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -7,38 +6,64 @@ using System.Text;
 
 namespace Julmar.GenMarkdown
 {
-    public abstract class MarkdownList : MarkdownBlock, IEnumerable<MarkdownBlock>
+    /// <summary>
+    /// This is the basis for any list in Markdown capable of holding multiple
+    /// blocks within each item.
+    ///
+    /// The MarkdownList is comprised of a List of markdown block lists. Each list
+    /// generates a single entry in the Markdown list itself with indented children.
+    /// </summary>
+    public abstract class MarkdownList : MarkdownBlockCollection<List<MarkdownBlock>>
     {
-        protected readonly List<List<MarkdownBlock>> Blocks = new();
-
+        /// <summary>
+        /// The indentation (4-space) required for sub-elements to keep the list consistent.
+        /// </summary>
+        private static readonly string SubElementIndent = new(' ', 4);
+        
+        /// <summary>
+        /// Get the prefix for each list item based on the formatting options and current index.
+        /// </summary>
+        /// <param name="formatting"></param>
+        /// <param name="index"></param>
+        /// <returns></returns>
         protected abstract string GetPrefix(MarkdownFormatting formatting, int index);
 
+        /// <summary>
+        /// Writes the block to the given TextWriter.
+        /// </summary>
+        /// <param name="writer">writer</param>
+        /// <param name="formatting">optional formatting</param>
         public override void Write(TextWriter writer, MarkdownFormatting formatting)
         {
-            string indent = Indent;
+            if (!AllBlocks().Any()) return;
 
+            string indent = Indent;
             var sb = new StringBuilder();
-            for (int i = 0; i < Blocks.Count; i++)
+            for (int i = 0; i < Children.Count; i++)
             {
-                var block = Blocks[i];
+                var block = Children[i];
                 string prefix = GetPrefix(formatting, i);
                 for (var index = 0; index < block.Count; index++)
                 {
-                    if (index > 0)
+                    var item = block[index];
+
+                    if (index > 0 && item is not MarkdownList)
                         sb.AppendLine();
 
-                    var item = block[index];
                     sb.Append(indent + prefix);
 
                     if (index == 0)
-                        prefix = new string(' ', prefix.Length);
+                        prefix = SubElementIndent;
 
                     var sw = new StringWriter();
                     item.Write(sw, formatting);
 
-                    sb.AppendLine(sw.ToString()
+                    sb.Append(sw.ToString()
                         .TrimEnd('\r', '\n')
-                        .Replace("\n", "\n" + indent+prefix));
+                        .Replace("\n", "\n" + indent + prefix));
+
+                    if (item is not MarkdownList)
+                        sb.AppendLine();
                 }
 
                 if (block.Count > 1)
@@ -48,81 +73,88 @@ namespace Julmar.GenMarkdown
             writer.Write(sb.ToString().TrimEnd('\r', '\n') + Environment.NewLine + Environment.NewLine);
         }
 
+        /// <summary>
+        /// Add a new MarkdownBlock to our list.
+        /// </summary>
+        /// <param name="item">Item to add</param>
+        public void Add(MarkdownBlock item) => Children.Add(new List<MarkdownBlock> { item });
 
-        public void Add(MarkdownBlock item) => Blocks.Add(new List<MarkdownBlock> { item });
-        public void Add(params MarkdownBlock[] items) => Blocks.Add(new List<MarkdownBlock>(items));
-        public void Clear() => Blocks.Clear();
-        public bool Contains(MarkdownBlock item) => this.FirstOrDefault(c => c == item) != null;
-        public bool Remove(MarkdownBlock item) => Blocks.Any(items => items.Remove(item));
-        public int Count => Blocks.Sum(mb => mb.Count);
-        public int IndexOf(MarkdownBlock item)
+        /// <summary>
+        /// Add a set of MarkdownBlock items as a single item in our list.
+        /// </summary>
+        /// <param name="items">Items to add</param>
+        public void Add(params MarkdownBlock[] items) => Children.Add(new List<MarkdownBlock>(items));
+
+        /// <summary>
+        /// Return whether the given MarkdownBlock exists in this list.
+        /// </summary>
+        /// <param name="item">Item to look for</param>
+        /// <returns>True/False if found</returns>
+        public bool Contains(MarkdownBlock item) => Children.Any(list => list.Contains(item));
+        
+        /// <summary>
+        /// Removes the given MarkdownBlock from the list.
+        /// </summary>
+        /// <param name="item">Item to remove</param>
+        /// <returns>True if removed.</returns>
+        public bool Remove(MarkdownBlock item)
         {
-            for (int i = 0; i < Blocks.Count; i++)
+            for (var index = 0; index < Children.Count; index++)
             {
-                int pos = Blocks[i].IndexOf(item);
-                if (pos >= 0)
-                    return pos + i;
-            }
-
-            return -1;
-        }
-
-        public int BlockCount => Blocks.Count;
-        public List<MarkdownBlock> GetBlockSet(int index) => Blocks[index];
-
-        private bool GetBlock(int index, out List<MarkdownBlock> mbo, out int startingPos)
-        {
-            for (int i = 0; i < Blocks.Count; i++)
-            {
-                for (int x = 0; x < Blocks[i].Count; x++)
+                var block = Children[index];
+                if (block.Remove(item))
                 {
-                    if (i+x == index)
-                    {
-                        mbo = Blocks[i];
-                        startingPos = x;
-                        return true;
-                    }
+                    // Block is now empty? Remove it.
+                    if (block.Count == 0)
+                        Children.Remove(block);
+                    return true;
                 }
             }
 
-            mbo = null;
-            startingPos = -1;
             return false;
         }
 
+        /// <summary>
+        /// Returns the index of a given MarkdownBlock in our list.
+        /// </summary>
+        /// <param name="item">Item to look for</param>
+        /// <returns>Zero-based index or -1 if not found.</returns>
+        public int IndexOf(MarkdownBlock item)
+        {
+            for (int i = 0; i < Children.Count; i++)
+            {
+                int pos = Children[i].IndexOf(item);
+                if (pos >= 0)
+                    return pos + i;
+            }
+            return -1;
+        }
+
+        /// <summary>
+        /// Inserts a new top-level block into a given position in the list.
+        /// This creates a new top-level entry in the list.
+        /// </summary>
+        /// <param name="index">Index to insert at</param>
+        /// <param name="item">Item to insert</param>
         public void Insert(int index, MarkdownBlock item)
         {
-            if (GetBlock(index, out var mbo, out int pos))
-            {
-                mbo.Insert(pos, item);
-            }
+            if (item == null) throw new ArgumentNullException(nameof(item));
+            if (index <= 0) throw new ArgumentOutOfRangeException(nameof(index));
+
+            Children.Insert(index, new List<MarkdownBlock> {item});
         }
 
-        public void RemoveAt(int index)
-        {
-            if (GetBlock(index, out var mbo, out int pos))
-            {
-                mbo.RemoveAt(pos);
-            }
-        }
+        /// <summary>
+        /// Returns a count of all Markdown blocks in this list.
+        /// This includes any sub-items in the list.
+        /// </summary>
+        public int BlockCount => Children.Sum(mb => mb.Count);
 
-        public IEnumerator<MarkdownBlock> GetEnumerator() => Blocks.SelectMany(item => item).GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
-
-        public MarkdownBlock this[int index]
-        {
-            get
-            {
-                if (GetBlock(index, out var mbo, out int pos))
-                    return mbo[pos];
-                throw new IndexOutOfRangeException();
-            }
-            set
-            {
-                if (GetBlock(index, out var mbo, out int pos))
-                    mbo[pos] = value;
-                throw new IndexOutOfRangeException();
-            }
-        }
+        /// <summary>
+        /// Returns an enumerator of all added Markdown blocks.
+        /// This includes sub-items in the list.
+        /// </summary>
+        /// <returns>Enumerator</returns>
+        public IEnumerable<MarkdownBlock> AllBlocks() => Children.SelectMany(item => item);
     }
 }

@@ -1,14 +1,14 @@
 ﻿namespace Julmar.GenMarkdown
 {
     /// <summary>
-    /// This emits Markdown bold text - **bold**
+    /// This emits bold _and_ italic text
     /// </summary>
-    public class BoldText : DelimitedText
+    public class BoldItalicText : DelimitedText
     {
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="text">Text</param>
-        public BoldText(string text) : base("**", text) { }
+        public BoldItalicText(string text) : base("***", text) { }
     }
 }

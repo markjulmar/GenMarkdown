@@ -1,57 +1,72 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 
 namespace Julmar.GenMarkdown
 {
-    public enum ColumnAlignment
+    /// <summary>
+    /// This renders a Markdown pipe table
+    /// </summary>
+    public class Table : MarkdownBlockCollection<TableRow>
     {
-        Default = 0,
-        Left = 0,
-        Center,
-        Right
-    }
-
-    public class Table : MarkdownBlock, IList<TableRow>
-    {
-        protected readonly List<TableRow> rows = new();
-
+        /// <summary>
+        /// Column alignments
+        /// </summary>
         public ColumnAlignment[] ColumnAlignments { get; private set; }
 
-        public Table(ColumnAlignment[] columns)
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="columns">Column alignments</param>
+        public Table(params ColumnAlignment[] columns)
         {
             ColumnAlignments = columns;
         }
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="columnCount"># of columns, all left-aligned</param>
         public Table(int columnCount)
         {
             ColumnAlignments = new ColumnAlignment[columnCount];
         }
 
+        /// <summary>
+        /// Writes the block to the given TextWriter.
+        /// </summary>
+        /// <param name="writer">writer</param>
+        /// <param name="formatting">optional formatting</param>
         public override void Write(TextWriter writer, MarkdownFormatting formatting)
         {
-            bool requiresExtension = rows.Any(r => r.Cells.Any(tc => tc.ColumnSpan>1));
-            if (requiresExtension)
-                throw new ArgumentException("Cannot render column-spanned content with pipe tables.");
+            if (!Children.Any()) return;
+
+            // Check for row or column spans.
+            if (Children.Any(r => r.Any(c => c?.ColumnSpan > 1)))
+                throw new InvalidOperationException("Cannot render spanned rows/columns with pipe table.");
 
             int columnCount = ColumnAlignments.Length;
 
             var sb = new StringBuilder();
-            for (var rowIndex = 0; rowIndex < rows.Count; rowIndex++)
+            for (var rowIndex = 0; rowIndex < Children.Count; rowIndex++)
             {
-                var row = rows[rowIndex];
+                var row = Children[rowIndex];
                 sb.Append("|");
                 for (int i = 0; i < columnCount; i++)
                 {
                     if (row.Count > i)
                     {
                         var sw = new StringWriter();
-                        row[i]?.Write(sw, formatting);
+
+                        var content = row[i]?.Content;
+                        content?.Write(sw, formatting);
+
                         var block = sw.ToString();
-                        block = block.Replace("|", @"\|");
+                        if (string.IsNullOrEmpty(block))
+                            block = " ";
+
+                        block = block.Replace("|", @"&#124;"); // escape pipe chars in content.
                         sb.Append(block.TrimEnd('\r', '\n'));
                     }
 
@@ -73,39 +88,17 @@ namespace Julmar.GenMarkdown
                             case ColumnAlignment.Right:
                                 sb.Append("---:");
                                 break;
+                            case ColumnAlignment.Left:
                             default: // left
                                 sb.Append("---");
                                 break;
                         }
-
                         sb.Append("|");
                     }
                     sb.AppendLine();
                 }
-
             }
-
             writer.WriteLine(sb);
         }
-
-        #region Rows
-        public IEnumerator<TableRow> GetEnumerator() => rows.GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable) rows).GetEnumerator();
-        public void Add(TableRow item) => rows.Add(item);
-        public void Clear() => rows.Clear();
-        public bool Contains(TableRow item) => rows.Contains(item);
-        public void CopyTo(TableRow[] array, int arrayIndex) => rows.CopyTo(array, arrayIndex);
-        public bool Remove(TableRow item) => rows.Remove(item);
-        public int Count => rows.Count;
-        public bool IsReadOnly => false;
-        public int IndexOf(TableRow item) => rows.IndexOf(item);
-        public void Insert(int index, TableRow item) => rows.Insert(index, item);
-        public void RemoveAt(int index) => rows.RemoveAt(index);
-        public TableRow this[int index]
-        {
-            get => rows[index];
-            set => rows[index] = value;
-        }
-        #endregion
     }
 }

@@ -1,42 +1,38 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 
 namespace Julmar.GenMarkdown
 {
-    public class Paragraph : MarkdownBlock, IList<MarkdownInline>
+    public class Paragraph : MarkdownBlockCollection<MarkdownInline>
     {
-        protected readonly List<MarkdownInline> Children = new();
-
+        /// <summary>
+        /// Default constructor to allow collection initialization
+        /// </summary>
         public Paragraph()
         {
         }
 
+        /// <summary>
+        /// Default constructor to allow collection initialization
+        /// </summary>
+        public Paragraph(MarkdownInline inline)
+        {
+            Children.Add(inline);
+        }
+
+        /// <summary>
+        /// Constructor to create a paragraph from a string.
+        /// </summary>
+        /// <param name="text">String text</param>
         public Paragraph(string text)
         {
             Children.Add(new Text(text));
         }
 
-        #region List
-        public IEnumerator<MarkdownInline> GetEnumerator() => Children.GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable) Children).GetEnumerator();
-        public void Add(MarkdownInline item) => Children.Add(item);
-        public void Clear() => Children.Clear();
-        public bool Contains(MarkdownInline item) => Children.Contains(item);
-        public void CopyTo(MarkdownInline[] array, int arrayIndex) => Children.CopyTo(array, arrayIndex);
-        public bool Remove(MarkdownInline item) => Children.Remove(item);
-        public int Count => Children.Count;
-        public bool IsReadOnly => false;
-        public int IndexOf(MarkdownInline item) => Children.IndexOf(item);
-        public void Insert(int index, MarkdownInline item) => Children.Insert(index, item);
-        public void RemoveAt(int index) => Children.RemoveAt(index);
-        public MarkdownInline this[int index]
-        {
-            get => Children[index];
-            set => Children[index] = value;
-        }
-        #endregion
-
+        /// <summary>
+        /// Writes the block to the given TextWriter.
+        /// </summary>
+        /// <param name="writer">writer</param>
+        /// <param name="formatting">optional formatting</param>
         public override void Write(TextWriter writer, MarkdownFormatting formatting)
         {
             var sw = new StringWriter();

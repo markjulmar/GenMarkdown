@@ -8,16 +8,22 @@ namespace Example
         static void Main()
         {
             Run("Table Example", TableExample);
+            Run("Grid Table", GridTableExample);
+            Run("Column-spanned grid table", GridTableColumnSpanExample);
             Run("Code Block", ExampleCodeBlock);
+            Run("Code Block w/Format", ExampleCodeBlock, new MarkdownFormatting() { UseIndentsForCodeBlocks = true });
             Run("ListWithEmbeddedCodeBlocks", ListWithEmbeddedCodeBlocks);
             Run("MultipleLists", MultipleLists);
+            Run("NestedList", NestedList);
             Run("TaskList", TaskList);
             Run("DefinitionList", DefinitionList);
             Run("ModifiedDocument", ModifiedDocument);
             Run("Create a document", FullDocument);
+            Run("Nested Blockquote", NestedBlockQuote);
+            Run("Complex quoteblock", ComplexQuoteBlock);
         }
 
-        static void Run(string header, Func<MarkdownDocument> method)
+        static void Run(string header, Func<MarkdownDocument> method, MarkdownFormatting formatting = null)
         {
             Console.Clear();
             Console.WriteLine();
@@ -26,11 +32,161 @@ namespace Example
             Console.WriteLine("-------");
             Console.WriteLine();
 
-            method().Write(Console.Out);
+            method().Write(Console.Out, formatting);
 
             Console.WriteLine();
             Console.WriteLine("Press [ENTER]");
             Console.ReadLine();
+        }
+
+        private static MarkdownDocument GridTableColumnSpanExample()
+        {
+            var table = new GridTable(true,
+                new GridColumnDefinition(ColumnAlignment.Left),
+                new GridColumnDefinition(ColumnAlignment.Center),
+                new GridColumnDefinition(ColumnAlignment.Right, .5))
+            {
+                // Header
+                new()
+                {
+                    new TableCell(Text.Bold("Student")),
+                    new TableCell(Text.Bold("Class")),
+                    new TableCell(Text.Bold("Grade"))
+                },
+
+                // Rows
+                new() {"Johnny Miller Smith", "Mathmatics", "A"},
+                new() {"Johnny Miller Smith", "English", "A"},
+                new() {"Johnny Miller Smith", "Science", "A"},
+
+                // Sep
+                new() {new TableCell {ColumnSpan = 3}},
+
+                // Rows
+                new() {"David Joseph Brown", "Mathmatics", "B"},
+                new() {"David Joseph Brown", "English", "C"},
+                new() {"David Joseph Brown", "Science", "A"},
+
+                // Sep
+                new() {new TableCell {ColumnSpan = 3}},
+
+                // Rows
+                new() {"Susan Deloris Green", "Mathmatics", "B"},
+                new() {"Susan Deloris Green", "English", "C"},
+                new() {"Susan Deloris Green", "Science", "A"},
+            };
+
+            var table2 = new GridTable(false, 3)
+            {
+                new()
+                {
+                    new TableCell(Text.Bold("Name")), new TableCell("John Smith") { ColumnSpan = 2 }
+                },
+                new()
+                {
+                    new TableCell(Text.Bold("Phone")), "214", "555-1212"
+                },
+                new()
+                {
+                    new TableCell() { ColumnSpan = 3 }
+                },
+                new()
+                {
+                    new TableCell("I accept all damages included:") { ColumnSpan = 2 }, "Yes/No"
+                }
+
+            };
+
+            return new MarkdownDocument { table, new HorizontalRule(), table2 };
+        }
+
+        private static MarkdownDocument ComplexQuoteBlock()
+        {
+            return new MarkdownDocument
+            {
+                new BlockQuote
+                {
+                    new Heading(4, "The quarterly results look great!"),
+                    "",
+                    new List
+                    {
+                        "Revenue was off the chart.",
+                        "Profits were higher than ever."
+                    },
+                    "",
+                    new Paragraph
+                    {
+                        Text.Italic("Everything"), " is going according to ", Text.Bold("plan"), "."
+                    }
+                }
+            };
+        }
+
+        private static MarkdownDocument GridTableExample()
+        {
+            string alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+            var table = new GridTable(3)
+            {
+                new()
+                {
+                    new TableCell(),
+                    new Paragraph {Text.Bold("Math")},
+                    new Paragraph {Text.Bold("Science")},
+                },
+                new()
+                {
+                    new Paragraph {Text.Bold("John Smith")},
+                    alpha,
+                    "B"
+                },
+                new()
+                {
+                    new Paragraph {Text.Bold("Susan Green")},
+                    "C",
+                    alpha + alpha + alpha
+                },
+            };
+
+            table.HasHeader = true;
+            return new MarkdownDocument {table};
+        }
+
+
+        private static MarkdownDocument NestedBlockQuote()
+        {
+            return new MarkdownDocument
+            {
+                new BlockQuote
+                {
+                    "Dorothy followed her through many of the beautiful rooms in her castle.",
+                    "",
+                    new BlockQuote
+                    {
+                        "The Witch bade her clean the pots and kettles and sweep the floor and keep the fire fed with wood."
+                    }
+                }
+            };
+        }
+
+        private static MarkdownDocument NestedList()
+        {
+            return new MarkdownDocument
+            {
+                new List
+                {
+                    "One",
+                    {
+                        "Two",
+                        new List
+                        {
+                            "Sub-entry 1",
+                            "Sub-entry 2"
+                        }
+                    },
+                    "Three"
+                }
+            };
         }
 
         private static MarkdownDocument DefinitionList()
@@ -47,7 +203,7 @@ namespace Example
                     }
                 },
 
-                new BulletedList
+                new List
                 {
                     {
                         "Definition list in a bulleted list:",
@@ -86,9 +242,9 @@ namespace Example
         {
             return new MarkdownDocument
             {
-                new NumberedList {"One", "Two", "Three" },
-                new NumberedList(4) {"Four", "Five", "Six"},
-                new NumberedList {"One", "Two", "Three"}
+                new OrderedList {"One", "Two", "Three" },
+                new OrderedList(4) {"Four", "Five", "Six"},
+                new OrderedList {"One", "Two", "Three"}
             };
         }
 
@@ -96,7 +252,7 @@ namespace Example
         {
             var doc = new MarkdownDocument();
 
-            var list = new NumberedList
+            var list = new OrderedList
             {
                 "Do this:",
                 {
@@ -165,7 +321,7 @@ namespace Example
         {
             return new MarkdownDocument
             {
-                new Header(1, "Heading"),
+                new Heading(1, "Heading"),
                 "Welcome to the document with a table.",
                 new Table(new[] {ColumnAlignment.Default, ColumnAlignment.Center, ColumnAlignment.Right})
                 {
@@ -193,11 +349,12 @@ namespace Example
             };
         }
 
+        /*
         private static void ColumnSpanExample()
         {
             var doc = new MarkdownDocument();
 
-            doc.Add(new Header(2, "Heading"));
+            doc.Add(new Heading(2, "Heading"));
             doc.Add("Welcome to the document with a table.");
 
             doc.Add(new DocxTable(new[] { ColumnAlignment.Default, ColumnAlignment.Center, ColumnAlignment.Right })
@@ -227,17 +384,18 @@ namespace Example
             });
 
             doc.Add("End of the table");
-            doc.Add(new Header(2, "Start of a new header"));
+            doc.Add(new Heading(2, "Start of a new header"));
             doc.Add("End of the document.");
 
             doc.Write(Console.Out);
         }
+        */
 
         private static MarkdownDocument ModifiedDocument()
         {
             var doc = new MarkdownDocument
             {
-                new Header(1, "Example title") {Id = "main"},
+                new Heading(1, "Example title") {Id = "main"},
                 new Paragraph()
             };
 
@@ -260,7 +418,7 @@ namespace Example
         {
             return new()
             {
-                new Header(1, "Example title"),
+                new Heading(1, "Example title"),
 
                 new Paragraph
                 {
@@ -293,7 +451,7 @@ namespace Example
                     new InlineCode("InlineCode"), " object."
                 },
 
-                new Header(2)
+                new Heading(2)
                 {
                     "Headers can have ",
                     Text.Bold("inline elements"),
@@ -309,11 +467,11 @@ namespace Example
                 "And a horizontal rule.",
                 new HorizontalRule(),
 
-                new Header(2, "Lists"),
+                new Heading(2, "Lists"),
 
                 new Paragraph("Here's an example bulleted list."),
 
-                new BulletedList
+                new List
                 {
                     new Paragraph { "Item #1 - ", Text.Link("google.com", "https://google.com"), "." },
                     new Paragraph("Item #2"),
@@ -347,7 +505,7 @@ namespace Example
 
             new Paragraph("Here's a numbered list."),
 
-                new NumberedList
+                new OrderedList
                 {
                     "One",
                     "Two",
@@ -356,7 +514,7 @@ namespace Example
 
                 "You can also start it at a specific number:",
 
-                new NumberedList(5)
+                new OrderedList(5)
                 {
                     "Five",
                     "Six",
@@ -367,7 +525,7 @@ namespace Example
 
                 new CodeBlock("bash", "ls -la\r\ncd /\r\n") { IndentLevel = 1 },
 
-                new Header(2, "Quotes"),
+                new Heading(2, "Quotes"),
 
                 "Some block quotes.",
 
@@ -378,7 +536,7 @@ namespace Example
                     new Image("Image", "https://www.nuget.org/Content/gallery/img/logo-header.svg")
                 },
 
-                new Header(2, "Tables"),
+                new Heading(2, "Tables"),
 
                 "And finally, tables.",
 

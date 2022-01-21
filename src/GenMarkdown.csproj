@@ -5,7 +5,7 @@
     <RootNamespace>Julmar.GenMarkdown</RootNamespace>
 	<PackOnBuild>true</PackOnBuild>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-	<PackageVersion>1.0.3.1</PackageVersion>
+	<PackageVersion>1.0.4.0</PackageVersion>
     <PackageId>Julmar.GenMarkdown</PackageId>
     <Authors>Mark Smith</Authors>
     <Company>julmar.com</Company>

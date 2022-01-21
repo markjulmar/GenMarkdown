@@ -1,21 +1,34 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.IO;
 
 namespace Julmar.GenMarkdown
 {
-    public class Definition : MarkdownBlock, ICollection<string>
+    /// <summary>
+    /// This represents a single definition in a definition list.
+    /// </summary>
+    public class Definition : MarkdownBlockCollection<string>
     {
-        protected readonly List<string> Children = new();
-
+        /// <summary>
+        /// The term being defined
+        /// </summary>
         public string Term { get; }
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="term">Term to define</param>
+        /// <exception cref="ArgumentNullException"></exception>
         public Definition(string term)
         {
             Term = term ?? throw new ArgumentNullException(nameof(term));
         }
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="term">Term to define</param>
+        /// <param name="definition">Definition for term</param>
+        /// <exception cref="ArgumentNullException"></exception>
         public Definition(string term, string definition)
         {
             if (definition == null) throw new ArgumentNullException(nameof(definition));
@@ -23,6 +36,11 @@ namespace Julmar.GenMarkdown
             Children.Add(definition);
         }
 
+        /// <summary>
+        /// Writes the block to the given TextWriter.
+        /// </summary>
+        /// <param name="writer">writer</param>
+        /// <param name="formatting">optional formatting</param>
         public override void Write(TextWriter writer, MarkdownFormatting formatting)
         {
             writer.Write(Indent);
@@ -33,17 +51,5 @@ namespace Julmar.GenMarkdown
                 writer.WriteLine($": {child.TrimEnd('\r','\n')}");
             }
         }
-
-        #region Collection
-        public IEnumerator<string> GetEnumerator() => Children.GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable) Children).GetEnumerator();
-        public void Add(string item) => Children.Add(item);
-        public void Clear() => Children.Clear();
-        public bool Contains(string item) => Children.Contains(item);
-        public void CopyTo(string[] array, int arrayIndex) => Children.CopyTo(array, arrayIndex);
-        public bool Remove(string item) => Children.Remove(item);
-        public int Count => Children.Count;
-        public bool IsReadOnly => false;
-        #endregion
     }
 }
