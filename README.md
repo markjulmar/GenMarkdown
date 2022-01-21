@@ -357,7 +357,7 @@ new CodeBlock
 
 Generates
 
-```markdown
+````markdown
 ```
 using namespace System;
 
@@ -369,7 +369,7 @@ namespace Test
    }
 }
 ```
-```
+````
 
 Adding a language will place that onto the code fence.
 
@@ -389,11 +389,11 @@ new CodeBlock("csharp")
 
 ```
 
-```markdown
+````markdown
 ```csharp
     ... same code as above
 
-```
+````
 
 ### HorizontalRule
 
