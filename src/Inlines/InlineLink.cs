@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Runtime.CompilerServices;
 
 namespace Julmar.GenMarkdown
 {
@@ -61,6 +62,14 @@ namespace Julmar.GenMarkdown
         /// <param name="formatting"></param>
         public override void Write(TextWriter writer, MarkdownFormatting formatting)
         {
+            // Output simplified URL format if URL is the same as the text if this is an inline link.
+            if (!Bold && !Italic && !Code && string.IsNullOrEmpty(Title)
+                && Text == Url && GetType() == typeof(InlineLink))
+            {
+                writer.Write($"<{Url}>");
+                return;
+            }
+
             if (Bold) writer.Write("**");
             if (Italic) writer.Write("*");
 

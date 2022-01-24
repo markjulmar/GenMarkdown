@@ -28,6 +28,20 @@ namespace GenMarkdown.Tests
         }
 
         [Fact]
+        public void UrlSameAsTextEmitsSimpleLink()
+        {
+            InlineLink link = new InlineLink("www.microsoft.com", "www.microsoft.com");
+            Assert.Equal("<www.microsoft.com>", link.ToString());
+        }
+
+        [Fact]
+        public void UrlSameAsTextWithBoldEmitsComplexLink()
+        {
+            InlineLink link = new InlineLink("www.microsoft.com", "www.microsoft.com") { Bold = true };
+            Assert.Equal("**[www.microsoft.com](www.microsoft.com)**", link.ToString());
+        }
+
+        [Fact]
         public void LinkWithDescriptionTest()
         {
             Link link = new Link("Test", "#1", "Description");

@@ -16,11 +16,9 @@ namespace GenMarkdown.Tests
                 new() {"A1", "B2","C3"},
                 new() {"A1", "B2","C3"},
             };
-            table.MaxWidth = 80;
 
-            int width = table.MaxWidth / 3; // each column
-            width *= 3; // all columns
-            width += 1; // ending +
+            // 3 columns, 6 chars per column, 4 separators.
+            int width = 3 * 3 * "A1".Length + 3 + 1;
 
             var lines = table.ToString().Split(Environment.NewLine);
             Assert.Equal(width, lines[0].Length);
