@@ -8,6 +8,7 @@ namespace Example
         static void Main()
         {
             Run("Table Example", TableExample);
+            Run("Pretty Table Example", TableExample, new MarkdownFormatting() { PrettyPipeTables = true });
             Run("Grid Table", GridTableExample);
             Run("Column-spanned grid table", GridTableColumnSpanExample);
             Run("Code Block", ExampleCodeBlock);

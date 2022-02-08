@@ -29,5 +29,10 @@
         /// True to use 4-space indents vs. fenced characters for code blocks.
         /// </summary>
         public bool UseIndentsForCodeBlocks;
+
+        /// <summary>
+        /// True to add spaces to make pipe tables line up.
+        /// </summary>
+        public bool PrettyPipeTables;
     }
 }

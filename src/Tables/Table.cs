@@ -10,6 +10,8 @@ namespace Julmar.GenMarkdown
     /// </summary>
     public class Table : MarkdownBlockCollection<TableRow>
     {
+        private const char PipeSeparator = '|';
+
         /// <summary>
         /// Column alignments
         /// </summary>
@@ -48,11 +50,13 @@ namespace Julmar.GenMarkdown
 
             int columnCount = ColumnAlignments.Length;
 
+            int[] widths = Children.Select(r => r.Max(c => Math.Min(30, c?.Content?.ToString().Length ?? 0) + 2)).ToArray();
+
             var sb = new StringBuilder();
             for (var rowIndex = 0; rowIndex < Children.Count; rowIndex++)
             {
                 var row = Children[rowIndex];
-                sb.Append("|");
+                sb.Append(PipeSeparator);
                 for (int i = 0; i < columnCount; i++)
                 {
                     if (row.Count > i)
@@ -62,38 +66,44 @@ namespace Julmar.GenMarkdown
                         var content = row[i]?.Content;
                         content?.Write(sw, formatting);
 
-                        var block = sw.ToString();
+                        var block = sw.ToString().Replace("|", @"&#124;").TrimEnd('\r', '\n');
                         if (string.IsNullOrEmpty(block))
                             block = " ";
 
-                        block = block.Replace("|", @"&#124;"); // escape pipe chars in content.
-                        sb.Append(block.TrimEnd('\r', '\n'));
+                        if (formatting?.PrettyPipeTables == true)
+                        {
+                            if (block[0] != ' ') block = ' ' + block;
+                            if (block.Length > 1 && block[^1] != ' ') block += ' ';
+                            block = block.PadRight(widths[i]);
+                        }
+
+                        sb.Append(block);
                     }
 
-                    sb.Append("|");
+                    sb.Append(PipeSeparator);
                 }
 
                 sb.AppendLine();
 
                 if (rowIndex == 0)
                 {
-                    sb.Append("|");
+                    sb.Append(PipeSeparator);
                     for (int i = 0; i < columnCount; i++)
                     {
                         switch (ColumnAlignments[i])
                         {
                             case ColumnAlignment.Center:
-                                sb.Append(":---:");
+                                sb.Append($":{new string('-', formatting?.PrettyPipeTables == true ? widths[i]-2 : 3)}:");
                                 break;
                             case ColumnAlignment.Right:
-                                sb.Append("---:");
+                                sb.Append($"{new string('-', formatting?.PrettyPipeTables == true ? widths[i]-1 : 3)}:");
                                 break;
                             case ColumnAlignment.Left:
                             default: // left
-                                sb.Append("---");
+                                sb.Append(new string('-', formatting?.PrettyPipeTables == true ? widths[i] : 3));
                                 break;
                         }
-                        sb.Append("|");
+                        sb.Append(PipeSeparator);
                     }
                     sb.AppendLine();
                 }

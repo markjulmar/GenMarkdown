@@ -491,6 +491,25 @@ This generates:
 |(2,0)|(2,1)|(2,2)|
 ```
 
+A `MarkdownFormatting` option - `PrettyPipeTables` can be set to add spacing (up to 30 characters per column) to align the columns nicely.
+
+```csharp
+Table table = new Table() { ... };
+document.Add(table);
+
+document.Write(Console.Out, new MarkdownFormatting { PrettyPipeTables = true });
+```
+
+The previous table will now render as:
+
+```markdown
+| Heading 0 | Heading 1 | Heading 2 |
+|-----------|-----------|-----------|
+| (0,0)     | (0,1)     | (0,2)     |
+| (1,0)     | (1,1)     | (1,2)     |
+| (2,0)     | (2,1)     | (2,2)     |
+```
+
 You can simplify the creation by relying on the implicit `TableCell` conversion, and using the new targeted-type new support in C#9. This code generates the exact same Markdown:
 
 ```csharp
@@ -523,13 +542,13 @@ new Table(3)
 }
 ```
 
-This generates:
+This generates (with pretty print):
 
 ```markdown
-||**Math**|**Science**|
-|---|---|---|
-|**John Smith**|A|B|
-|**Susan Green**|C|A|
+|                 | **Math** | **Science** |
+|-----------------|----------|-------------|
+| **John Smith**  | A        | B           |
+| **Susan Green** | C        | A           |
 ```
 
 A second constructor allows you to control the column alignment by passing in an array of `ColumnAlignment` values:
@@ -561,10 +580,10 @@ new Table(new[] {ColumnAlignment.Default, ColumnAlignment.Center, ColumnAlignmen
 This changes the second row of the generated markdown to include justification hints:
 
 ```markdown
-||**Math**|**Science**|
-|---|:---:|---:|
-|**John Smith**|A|B|
-|**Susan Green**|C|A|
+|                 | **Math** | **Science** |
+|-----------------|:--------:|------------:|
+| **John Smith**  | A        | B           |
+| **Susan Green** | C        | A           |
 ```
 
 ### Grid table
