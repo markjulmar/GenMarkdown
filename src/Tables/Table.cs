@@ -70,10 +70,11 @@ namespace Julmar.GenMarkdown
                         if (string.IsNullOrEmpty(block))
                             block = " ";
 
+                        if (block[0] != ' ') block = ' ' + block;
+                        if (block.Length > 1 && block[^1] != ' ') block += ' ';
+
                         if (formatting?.PrettyPipeTables == true)
                         {
-                            if (block[0] != ' ') block = ' ' + block;
-                            if (block.Length > 1 && block[^1] != ' ') block += ' ';
                             block = block.PadRight(widths[i]);
                         }
 
