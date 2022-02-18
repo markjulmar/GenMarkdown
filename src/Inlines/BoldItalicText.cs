@@ -9,6 +9,6 @@
         /// Constructor
         /// </summary>
         /// <param name="text">Text</param>
-        public BoldItalicText(string text) : base("***", text) { }
+        public BoldItalicText(string text) : base("***", text, true) { }
     }
 }

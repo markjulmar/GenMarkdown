@@ -10,6 +10,6 @@
         /// Constructor
         /// </summary>
         /// <param name="emoji">Emoji to render</param>
-        public Emoji(string emoji) : base(":", emoji?.Trim()) { }
+        public Emoji(string emoji) : base(":", emoji?.Trim(), true) { }
     }
 }

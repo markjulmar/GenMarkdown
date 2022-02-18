@@ -1,4 +1,6 @@
-﻿namespace Julmar.GenMarkdown
+﻿using System.IO;
+
+namespace Julmar.GenMarkdown
 {
     /// <summary>
     /// Basic markdown text
@@ -6,12 +8,18 @@
     public class Text : MarkdownInline
     {
         /// <summary>
+        /// Internal flag to turn off escaped character support.
+        /// This needs to be done for code blocks
+        /// </summary>
+        protected internal bool checkForEscapedCharacters;
+
+        /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="text">Text</param>
-        public Text(string text)
+        public Text(string text) : base(text)
         {
-            Text = text;
+            checkForEscapedCharacters = true;
         }
 
         /// <summary>
@@ -56,5 +64,37 @@
         /// </summary>
         /// <returns>LineBreak object</returns>
         public static LineBreak LineBreak => new();
+
+        /// <summary>
+        /// Writes the text as markdown.
+        /// </summary>
+        /// <param name="writer">Text writer to write object to</param>
+        /// <param name="formatting">Optional formatting information</param>
+        public override void Write(TextWriter writer, MarkdownFormatting formatting) =>
+            writer.Write(checkForEscapedCharacters ? EscapeReservedCharacters(Text) : Text);
+
+        /// <summary>
+        /// Cleans the text of possible misinterpretations of Markdown.
+        /// </summary>
+        /// <param name="text">Text</param>
+        /// <returns>Cleaned text</returns>
+        protected static string EscapeReservedCharacters(string text)
+        {
+            if (!string.IsNullOrEmpty(text))
+            {
+                int npos = text.IndexOf('<');
+                while (npos >= 0)
+                {
+                    int epos = text.IndexOf('>', npos + 1);
+                    if (epos > npos + 1 && text.Substring(npos + 1, epos - npos - 1).Trim().Length > 0)
+                    {
+                        text = text.Remove(npos, 1)
+                            .Insert(npos, @"\<");
+                    }
+                    npos = text.IndexOf('<', npos + 2);
+                }
+            }
+            return text;
+        }
     }
 }

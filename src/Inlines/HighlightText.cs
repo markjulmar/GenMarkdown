@@ -9,6 +9,6 @@
         /// Constructor
         /// </summary>
         /// <param name="text">Text to render</param>
-        public HighlightText(string text) : base("==", text) { }
+        public HighlightText(string text) : base("==", text, true) { }
     }
 }

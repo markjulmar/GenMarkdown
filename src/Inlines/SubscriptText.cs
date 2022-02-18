@@ -9,6 +9,6 @@
         /// Constructor
         /// </summary>
         /// <param name="text">Text to render</param>
-        public SubscriptText(string text) : base("~", text) { }
+        public SubscriptText(string text) : base("~", text, true) { }
     }
 }

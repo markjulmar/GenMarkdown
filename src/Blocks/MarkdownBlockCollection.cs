@@ -30,8 +30,19 @@ namespace Julmar.GenMarkdown
         /// Add a new child to the collection.
         /// </summary>
         /// <param name="item">Item to add</param>
-        public void Add(T item) => Children.Add(item);
-        
+        public void Add(T item)
+        {
+            if (ShouldAddChild(item))
+                Children.Add(item);
+        }
+
+        /// <summary>
+        /// Allows derived types to control addition of children
+        /// </summary>
+        /// <param name="item"></param>
+        /// <returns></returns>
+        protected virtual bool ShouldAddChild(T item) => true;
+
         /// <summary>
         /// Clear all children from the collection.
         /// </summary>

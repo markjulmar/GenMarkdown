@@ -62,7 +62,7 @@ namespace Julmar.GenMarkdown
                         .TrimEnd('\r', '\n')
                         .Replace("\n", "\n" + indent + prefix));
 
-                    if (item is not MarkdownList)
+                    if (item is not MarkdownList || index < block.Count-1)
                         sb.AppendLine();
                 }
 

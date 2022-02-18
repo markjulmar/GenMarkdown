@@ -17,9 +17,11 @@ namespace Julmar.GenMarkdown
         /// </summary>
         /// <param name="delimiter">Surround delimiter</param>
         /// <param name="text">Text</param>
-        protected DelimitedText(string delimiter, string text) : base(text)
+        /// <param name="checkForEscapedCharacters">True to escape reserved characters during the Write</param>
+        protected DelimitedText(string delimiter, string text, bool checkForEscapedCharacters) : base(text)
         {
             this.Delimiter = delimiter;
+            base.checkForEscapedCharacters = checkForEscapedCharacters;
         }
 
         /// <summary>
@@ -28,6 +30,6 @@ namespace Julmar.GenMarkdown
         /// <param name="writer">Text writer to write object to</param>
         /// <param name="formatting">Optional formatting information</param>
         public override void Write(TextWriter writer, MarkdownFormatting formatting) 
-            => writer.Write($"{Delimiter}{Text}{Delimiter}");
+            => writer.Write($"{Delimiter}{(checkForEscapedCharacters? EscapeReservedCharacters(Text) : Text)}{Delimiter}");
     }
 }

@@ -15,7 +15,7 @@ namespace GenMarkdown.Tests
                 new() {"c4", "c5", "c6"}
             };
 
-            Assert.Equal("|H1|H2|H3|\r\n|---|---|---|\r\n|c1|c2|c3|\r\n|c4|c5|c6|\r\n\r\n", table.ToString());
+            Assert.Equal("| H1 | H2 | H3 |\r\n|---|---|---|\r\n| c1 | c2 | c3 |\r\n| c4 | c5 | c6 |\r\n\r\n", table.ToString());
         }
 
         [Fact]
@@ -28,7 +28,7 @@ namespace GenMarkdown.Tests
             };
 
             var lines = table.ToString().Split("\r\n");
-            Assert.Equal("|1&#124;2|2&#124;3|", lines[2]);
+            Assert.Equal("| 1&#124;2 | 2&#124;3 |", lines[2]);
         }
 
         [Fact]

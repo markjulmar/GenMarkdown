@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using System.Linq;
 
 namespace Julmar.GenMarkdown
 {
@@ -26,6 +28,27 @@ namespace Julmar.GenMarkdown
         public Paragraph(string text)
         {
             Children.Add(new Text(text));
+        }
+
+        /// <summary>
+        /// Check to see if we can merge with the prior block
+        /// </summary>
+        /// <param name="item">Item to add</param>
+        /// <returns></returns>
+        protected override bool ShouldAddChild(MarkdownInline item)
+        {
+            var itemType = item.GetType();
+
+            var lastItem = Children.LastOrDefault();
+            if (lastItem?.GetType() == itemType
+                && itemType != typeof(InlineLink)
+                && itemType != typeof(LineBreak))
+            {
+                lastItem.Text += item.Text;
+                return false;
+            }
+
+            return true;
         }
 
         /// <summary>

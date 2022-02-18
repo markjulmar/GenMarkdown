@@ -9,6 +9,6 @@
         /// Constructor
         /// </summary>
         /// <param name="text">Text to render</param>
-        public SuperscriptText(string text) : base("^", text) { }
+        public SuperscriptText(string text) : base("^", text, true) { }
     }
 }

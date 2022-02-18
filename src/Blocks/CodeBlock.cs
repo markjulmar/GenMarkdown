@@ -36,6 +36,18 @@ namespace Julmar.GenMarkdown
         }
 
         /// <summary>
+        /// Check to see if we can merge with the prior block
+        /// </summary>
+        /// <param name="item">Item to add</param>
+        /// <returns></returns>
+        protected override bool ShouldAddChild(MarkdownInline item)
+        {
+            if (item is Text t)
+                t.checkForEscapedCharacters = false;
+            return true;
+        }
+
+        /// <summary>
         /// Writes the block to the given TextWriter.
         /// </summary>
         /// <param name="writer">writer</param>

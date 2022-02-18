@@ -9,6 +9,6 @@
         /// Constructor
         /// </summary>
         /// <param name="text">Text to render</param>
-        public StrikethroughText(string text) : base("~~", text) { }
+        public StrikethroughText(string text) : base("~~", text, true) { }
     }
 }

@@ -11,7 +11,7 @@ namespace Julmar.GenMarkdown
         /// Constructor
         /// </summary>
         /// <param name="text">Text to render</param>
-        public InlineCode(string text) : base("`", text) { }
+        public InlineCode(string text) : base("`", text, false) { }
 
         /// <summary>
         /// Writes the text as markdown.

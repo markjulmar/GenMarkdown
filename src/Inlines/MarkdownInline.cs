@@ -13,6 +13,14 @@ namespace Julmar.GenMarkdown
         public string Text { get; set; }
 
         /// <summary>
+        /// Constructor
+        /// </summary>
+        protected MarkdownInline(string text)
+        {
+            Text = text;
+        }
+
+        /// <summary>
         /// Operator to convert a string into Markdown text wrapper.
         /// </summary>
         /// <param name="s"></param>
@@ -24,7 +32,7 @@ namespace Julmar.GenMarkdown
         /// <param name="writer">Text writer to write object to</param>
         /// <param name="formatting">Optional formatting information</param>
         public virtual void Write(TextWriter writer, MarkdownFormatting formatting) => writer.Write(Text);
-        
+
         /// <summary>
         /// Render the object as Markdown text
         /// </summary>

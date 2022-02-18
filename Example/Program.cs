@@ -7,6 +7,7 @@ namespace Example
     {
         static void Main()
         {
+            Run("List with Complex children", ListWithComplexChildren);
             Run("Table Example", TableExample);
             Run("Pretty Table Example", TableExample, new MarkdownFormatting() { PrettyPipeTables = true });
             Run("Grid Table", GridTableExample);
@@ -99,6 +100,26 @@ namespace Example
             };
 
             return new MarkdownDocument { table, new HorizontalRule(), table2 };
+        }
+
+        private static MarkdownDocument ListWithComplexChildren()
+        {
+            return new MarkdownDocument
+            {
+                new OrderedList()
+                {
+                    "Item 1",
+                    { "Item 2", 
+                        new List()
+                        {
+                            "Child 1",
+                            "Child 2",
+                            "Child 3", 
+                        },
+                        new Image("alt", "image.png", "description")
+                    },
+                }
+            };
         }
 
         private static MarkdownDocument ComplexQuoteBlock()

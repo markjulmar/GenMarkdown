@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Runtime.CompilerServices;
 
 namespace Julmar.GenMarkdown
 {
@@ -45,7 +44,7 @@ namespace Julmar.GenMarkdown
         /// <param name="text"></param>
         /// <param name="url"></param>
         /// <param name="title"></param>
-        public InlineLink(string text, string url, string title = null)
+        public InlineLink(string text, string url, string title = null) : base("")
         {
             if (string.IsNullOrWhiteSpace(url))
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(url));

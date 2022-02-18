@@ -8,10 +8,31 @@ namespace GenMarkdown.Tests
 {
     public class CodeBlockTests
     {
+        private static string EOL = Environment.NewLine;
+
         [Fact]
         public void EmptyLanguageThrows()
         {
             Assert.Throws<ArgumentException>(() => new CodeBlock(null, "Test"));
+        }
+
+        [Fact]
+        public void GreaterThanNotEscaped()
+        {
+            string text = "x < y > z";
+            var code = new InlineCode(text);
+            Assert.Equal($"`{text}`", code.ToString());
+        }
+
+        [Fact]
+        public void GreaterThanNotEscapedInBlock()
+        {
+            string text = "x < y > z" + EOL;
+            var code = new CodeBlock() { text, "var x = 10;"+EOL, "x + 1 < x > y;"};
+            Assert.Equal("```" + EOL + text
+                + "var x = 10;"+EOL
+                + "x + 1 < x > y;"+EOL 
+                + "```" + EOL + EOL, code.ToString());
         }
 
         [Fact]
