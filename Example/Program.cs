@@ -7,13 +7,14 @@ namespace Example
     {
         static void Main()
         {
-            Run("List with Complex children", ListWithComplexChildren);
+            Run("ListWithNumbers", ListWithNumbers, new MarkdownFormatting() { OrderedListUsesSequence = true });
             Run("Table Example", TableExample);
             Run("Pretty Table Example", TableExample, new MarkdownFormatting() { PrettyPipeTables = true });
             Run("Grid Table", GridTableExample);
             Run("Column-spanned grid table", GridTableColumnSpanExample);
             Run("Code Block", ExampleCodeBlock);
             Run("Code Block w/Format", ExampleCodeBlock, new MarkdownFormatting() { UseIndentsForCodeBlocks = true });
+            Run("List with Complex children", ListWithComplexChildren);
             Run("ListWithEmbeddedCodeBlocks", ListWithEmbeddedCodeBlocks);
             Run("MultipleLists", MultipleLists);
             Run("NestedList", NestedList);
@@ -100,6 +101,29 @@ namespace Example
             };
 
             return new MarkdownDocument { table, new HorizontalRule(), table2 };
+        }
+
+        private static MarkdownDocument ListWithNumbers()
+        {
+            var list = new OrderedList(9);
+            for (int i = 0; i < 5; i++)
+            {
+                list.Add($"Item {i + 1}");
+                var item = list[i];
+
+                var childList = new List();
+                for (int ix = 0; ix < 3; ix++)
+                {
+                    childList.Add($"Child {ix + 1}");
+                    var child = childList[ix];
+                    if (i > 3)
+                        child.Add("Sub-item child");
+                }
+
+                item.Add(childList);
+            }
+
+            return new MarkdownDocument() {list};
         }
 
         private static MarkdownDocument ListWithComplexChildren()

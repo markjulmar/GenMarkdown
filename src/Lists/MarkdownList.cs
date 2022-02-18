@@ -16,11 +16,6 @@ namespace Julmar.GenMarkdown
     public abstract class MarkdownList : MarkdownBlockCollection<List<MarkdownBlock>>
     {
         /// <summary>
-        /// The indentation (4-space) required for sub-elements to keep the list consistent.
-        /// </summary>
-        private static readonly string SubElementIndent = new(' ', 4);
-        
-        /// <summary>
         /// Get the prefix for each list item based on the formatting options and current index.
         /// </summary>
         /// <param name="formatting"></param>
@@ -50,10 +45,11 @@ namespace Julmar.GenMarkdown
                     if (index > 0 && item is not MarkdownList)
                         sb.AppendLine();
 
-                    sb.Append(indent + prefix);
+                    sb.Append(indent + prefix); // # or -
 
+                    // Prepare for any sub-elements. We must indent up to the text.
                     if (index == 0)
-                        prefix = SubElementIndent;
+                        prefix = new string(' ', prefix.Length);
 
                     var sw = new StringWriter();
                     item.Write(sw, formatting);
