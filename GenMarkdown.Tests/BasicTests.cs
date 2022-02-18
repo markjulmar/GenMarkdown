@@ -18,6 +18,14 @@ namespace GenMarkdown.Tests
         }
 
         [Fact]
+        public void RawInlineDoesNoTranslation()
+        {
+            string text = "<kbd>Raw</kbd> with some <b>Text</b> and _Markdown_ \\>";
+            var raw = new RawInline(text);
+            Assert.Equal(text, raw.ToString());
+        }
+
+        [Fact]
         public void TextIsMerged()
         {
             var p = new Paragraph("This is a ") {"test", " of the emergency", " broadcast system."};
