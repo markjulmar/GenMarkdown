@@ -30,6 +30,6 @@ namespace Julmar.GenMarkdown
         /// <param name="writer">Text writer to write object to</param>
         /// <param name="formatting">Optional formatting information</param>
         public override void Write(TextWriter writer, MarkdownFormatting formatting) 
-            => writer.Write($"{Delimiter}{(checkForEscapedCharacters? EscapeReservedCharacters(Text) : Text)}{Delimiter}");
+            => writer.Write($"{Delimiter}{(checkForEscapedCharacters? EscapeReservedCharacters(Text, formatting) : Text)}{Delimiter}");
     }
 }

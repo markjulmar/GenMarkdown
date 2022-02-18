@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using Julmar.GenMarkdown;
 using Xunit;
 
@@ -50,25 +51,33 @@ namespace GenMarkdown.Tests
         }
 
         [Fact]
-        public void TextIsEscaped()
+        public void EmphasisIsEscaped()
         {
-            var text = new Text("Replace <your-function-app-name> with the name");
-            string expectedText = @"Replace \<your-function-app-name> with the name";
-            Assert.Equal(expectedText, text.ToString());
+            Assert.Equal(@"This is a \_\_test__", new Text("This is a __test__").ToString());
+            Assert.Equal(@"*This is a \_\_test__*", new ItalicText("This is a __test__").ToString());
+            Assert.Equal(@"This is a \*test*", new Text("This is a *test*").ToString());
+            Assert.Equal(@"This is a \*name for* a variable", new Text("This is a *name for* a variable").ToString());
+            Assert.Equal(@"This is a \*name for a variable", new Text("This is a *name for a variable").ToString());
+            Assert.Equal(@"This is a \_name for a variable", new Text("This is a _name for a variable").ToString());
         }
 
         [Fact]
-        public void UnderscoreIsEscaped()
+        public void ForcedAllEscapesConvertsAllUnderscores()
         {
-            var expectedText = @"This is a \_\_test\_\_";
-            Assert.Equal(expectedText, new Text("This is a __test__").ToString());
+            var sw = new StringWriter();
+            new Text("foo_bar_baz").Write(sw, new MarkdownFormatting() { EscapeAllIntrawordEmphasis =  true });
+            Assert.Equal(@"foo\_bar\_baz", sw.ToString());
+
         }
 
         [Fact]
-        public void UnderscoreOnEmpahsisIsNotEscaped()
+        public void EmphasisIsNotEscaped()
         {
-            var expectedText = @"*This is a \_\_test\_\_*";
-            Assert.Equal(expectedText, new ItalicText("This is a __test__").ToString());
+            var expectedText = "This is a node_name for a variable";
+            Assert.Equal(expectedText, new Text(expectedText).ToString());
+            Assert.Equal(@"This is a __name for a variable", new Text("This is a __name for a variable").ToString());
+            Assert.Equal(@"This is a node__name for a variable", new Text("This is a node__name for a variable").ToString());
+            Assert.Equal(@"This is a **name for a variable", new Text("This is a **name for a variable").ToString());
         }
 
         [Fact]
@@ -97,27 +106,21 @@ namespace GenMarkdown.Tests
         }
 
         [Fact]
-        public void SingleIsIgnored()
+        public void BracketsAreEscaped()
         {
-            var text = new Text("One > Two");
-            string expectedText = @"One > Two";
-            Assert.Equal(expectedText, text.ToString());
+            Assert.Equal(@"One \<Two>", new Text("One <Two>").ToString());
+            Assert.Equal(@"Replace \<your-function-app-name> with the name", new Text("Replace <your-function-app-name> with the name").ToString());
         }
 
         [Fact]
-        public void DoubleIsNotEscaped()
+        public void BracketsAreNotEscaped()
         {
-            var text = new Text("One <> Two");
-            string expectedText = @"One <> Two";
-            Assert.Equal(expectedText, text.ToString());
-        }
-
-        [Fact]
-        public void EmptyCaptureNotEscaped()
-        {
-            var text = new Text("One < > Two");
-            string expectedText = @"One < > Two";
-            Assert.Equal(expectedText, text.ToString());
+            Assert.Equal(@"One < Two", new Text("One < Two").ToString());
+            Assert.Equal(@"One > Two", new Text("One > Two").ToString());
+            Assert.Equal(@"One <> Two", new Text("One <> Two").ToString());
+            Assert.Equal(@"One < > Two", new Text("One < > Two").ToString());
+            Assert.Equal(@"One > Two and < One", new Text("One > Two and < One").ToString());
+            Assert.Equal(@"One < Two and > One", new Text("One < Two and > One").ToString());
         }
 
         [Fact]
@@ -126,14 +129,6 @@ namespace GenMarkdown.Tests
             string expectedText = "x + y <10>11";
             var code = new InlineCode(expectedText);
             Assert.Equal($"`{expectedText}`", code.ToString());
-        }
-
-        [Fact]
-        public void OutOfOrderNotEscaped()
-        {
-            var text = new Text("One > Two and < One");
-            string expectedText = @"One > Two and < One";
-            Assert.Equal(expectedText, text.ToString());
         }
     }
 }

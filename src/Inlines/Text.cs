@@ -1,4 +1,7 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace Julmar.GenMarkdown
 {
@@ -71,49 +74,106 @@ namespace Julmar.GenMarkdown
         /// <param name="writer">Text writer to write object to</param>
         /// <param name="formatting">Optional formatting information</param>
         public override void Write(TextWriter writer, MarkdownFormatting formatting) =>
-            writer.Write(checkForEscapedCharacters ? EscapeReservedCharacters(Text) : Text);
+            writer.Write(checkForEscapedCharacters ? EscapeReservedCharacters(Text, formatting) : Text);
 
         /// <summary>
         /// Cleans the text of possible misinterpretations of Markdown.
         /// </summary>
         /// <param name="text">Text</param>
+        /// <param name="formatting">Formatting information</param>
         /// <returns>Cleaned text</returns>
-        protected static string EscapeReservedCharacters(string text)
+        protected static string EscapeReservedCharacters(string text, MarkdownFormatting formatting)
         {
             if (!string.IsNullOrEmpty(text))
             {
-                text = EscapePairs(text, '<', '>', true);
-                text = EscapeSingles(text, '_');
+                text = EscapeUrls(text);
+                text = EscapeEmphasis(text, '_', formatting?.EscapeAllIntrawordEmphasis == true);
+                text = EscapeEmphasis(text, '*', formatting?.EscapeAllIntrawordEmphasis == true);
             }
 
             return text;
         }
 
-        private static string EscapeSingles(string text, char escapeMe)
-        {
-            int npos = text.IndexOf(escapeMe);
-            while (npos >= 0)
-            {
-                text = text.Remove(npos, 1)
-                    .Insert(npos, @$"\{escapeMe}");
-                npos = text.IndexOf(escapeMe, npos + 2);
-            }
+        private static bool IsPunctuation(char? ch, char start) =>
+            ch != start && ch != null && char.IsPunctuation(ch.Value);
 
-            return text;
-        }
-
-        private static string EscapePairs(string text, char start, char end, bool ignoreIfEmpty)
+        private static string EscapeEmphasis(string text, char start, bool escapeAll)
         {
             int npos = text.IndexOf(start);
             while (npos >= 0)
             {
-                int epos = text.IndexOf(end, npos + 1);
-                if (epos > npos && (!ignoreIfEmpty || text.Substring(npos + 1, epos - npos - 1).Trim().Length > 0))
+                bool opensRun = escapeAll;
+
+                if (!opensRun)
                 {
-                    text = text.Remove(npos, 1)
-                        .Insert(npos, @$"\{start}");
+                    char? before = npos > 0 ? text[npos - 1] : null;
+                    char? after = npos+1 < text.Length ? text[npos + 1] : null;
+
+                    // A right-flanking delimiter run is a delimiter run that is (1) not preceded by Unicode whitespace,
+                    // and either(2a) not preceded by a Unicode punctuation character, or (2b) preceded by a Unicode
+                    // punctuation character and followed by Unicode whitespace or a Unicode punctuation character.
+                    bool rfr = before != null && before != ' '
+                           && (!IsPunctuation(before, start) ||
+                               (IsPunctuation(before, start)
+                                && (after == ' ' || IsPunctuation(after, start))));
+
+                    // A left-flanking delimiter run is a delimiter run that is (1) not followed by Unicode whitespace,
+                    // and either (2a) not followed by a Unicode punctuation character, or (2b) followed by a Unicode
+                    // punctuation character and preceded by Unicode whitespace or a Unicode punctuation character.
+                    bool lfr = after != null && after != ' '
+                         && (!IsPunctuation(after, start) ||
+                             (IsPunctuation(after, start)
+                              && (before == ' ' || IsPunctuation(before, start))));
+
+                    // A single * character can open emphasis iff (if and only if)
+                    // it is part of a left-flanking delimiter run
+                    if (start == '*' && lfr)
+                        opensRun = true;
+
+                    // A single _ character can open emphasis if it is part of a left-flanking delimiter run and
+                    // either(a) not part of a right - flanking delimiter run or(b) part of a right-flanking delimiter run
+                    // preceded by a Unicode punctuation character.
+                    else if (start == '_' && lfr && !rfr || (rfr && char.IsPunctuation(before.Value)))
+                        opensRun = true;
+
+                    // Special case double characters with no end.
+                    if (opensRun && (before == start && text.IndexOf(start, npos + 1) == -1) 
+                        || (after == start && text.IndexOf(start, npos + 2) == -1))
+                        opensRun = false;
                 }
-                npos = text.IndexOf(start, npos + 2);
+
+                if (opensRun)
+                {
+                    text = text.Remove(npos, 1).Insert(npos, @$"\{start}");
+                    npos++;
+                }
+
+                npos = npos < text.Length ? text.IndexOf(start, npos + 1) : -1;
+            }
+            return text;
+        }
+
+        private static string EscapeUrls(string text)
+        {
+            const char start = '<';
+            const char end = '>';
+
+            int npos = text.IndexOf(start);
+            while (npos >= 0)
+            {
+                npos++;
+                int epos = text.IndexOf(end, npos);
+                if (epos > npos)
+                {
+                    string test = text.Substring(npos, epos - npos);
+                    if (test.Trim().Length > 0 && !test.Contains(' '))
+                    {
+                        text = text.Remove(npos-1, 1).Insert(npos-1, @$"\{start}");
+                    }
+
+                    npos++;
+                }
+                npos = text.IndexOf(start, npos+1);
             }
             return text;
 

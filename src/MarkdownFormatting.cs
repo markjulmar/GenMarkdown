@@ -34,5 +34,11 @@
         /// True to add spaces to make pipe tables line up.
         /// </summary>
         public bool PrettyPipeTables;
+
+        /// <summary>
+        /// True to force all intraword emphasis to be escaped (\_ and \*).
+        /// If false, this is relaxed and only escapes when 
+        /// </summary>
+        public bool EscapeAllIntrawordEmphasis;
     }
 }
