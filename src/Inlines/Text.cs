@@ -82,19 +82,41 @@ namespace Julmar.GenMarkdown
         {
             if (!string.IsNullOrEmpty(text))
             {
-                int npos = text.IndexOf('<');
-                while (npos >= 0)
+                text = EscapePairs(text, '<', '>', true);
+                text = EscapeSingles(text, '_');
+            }
+
+            return text;
+        }
+
+        private static string EscapeSingles(string text, char escapeMe)
+        {
+            int npos = text.IndexOf(escapeMe);
+            while (npos >= 0)
+            {
+                text = text.Remove(npos, 1)
+                    .Insert(npos, @$"\{escapeMe}");
+                npos = text.IndexOf(escapeMe, npos + 2);
+            }
+
+            return text;
+        }
+
+        private static string EscapePairs(string text, char start, char end, bool ignoreIfEmpty)
+        {
+            int npos = text.IndexOf(start);
+            while (npos >= 0)
+            {
+                int epos = text.IndexOf(end, npos + 1);
+                if (epos > npos && (!ignoreIfEmpty || text.Substring(npos + 1, epos - npos - 1).Trim().Length > 0))
                 {
-                    int epos = text.IndexOf('>', npos + 1);
-                    if (epos > npos + 1 && text.Substring(npos + 1, epos - npos - 1).Trim().Length > 0)
-                    {
-                        text = text.Remove(npos, 1)
-                            .Insert(npos, @"\<");
-                    }
-                    npos = text.IndexOf('<', npos + 2);
+                    text = text.Remove(npos, 1)
+                        .Insert(npos, @$"\{start}");
                 }
+                npos = text.IndexOf(start, npos + 2);
             }
             return text;
+
         }
     }
 }

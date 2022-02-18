@@ -21,6 +21,9 @@ namespace Julmar.GenMarkdown
         public override void Write(TextWriter writer, MarkdownFormatting formatting)
         {
             char emphasis = formatting?.UseAsterisksForEmphasis == true ? '*' : '_';
+            if (Text.Contains(emphasis))
+                emphasis = emphasis == '*' ? '_' : '*';
+
             var sw = new StringWriter();
             base.Write(sw, formatting);
 

@@ -58,6 +58,20 @@ namespace GenMarkdown.Tests
         }
 
         [Fact]
+        public void UnderscoreIsEscaped()
+        {
+            var expectedText = @"This is a \_\_test\_\_";
+            Assert.Equal(expectedText, new Text("This is a __test__").ToString());
+        }
+
+        [Fact]
+        public void UnderscoreOnEmpahsisIsNotEscaped()
+        {
+            var expectedText = @"*This is a \_\_test\_\_*";
+            Assert.Equal(expectedText, new ItalicText("This is a __test__").ToString());
+        }
+
+        [Fact]
         public void BoldTextIsEscaped()
         {
             var p = new Paragraph("Replace ") {Text.Bold("<your-function-app-name>"), " with the name"};
