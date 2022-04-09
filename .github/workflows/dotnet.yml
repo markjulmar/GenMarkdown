@@ -26,4 +26,3 @@ jobs:
     - name: Push to NuGet
       working-directory: ./src
       run: dotnet nuget push nuget-packages/*.nupkg --skip-duplicate --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
-    - name: Push symbols to nuget-packages
