@@ -44,7 +44,7 @@ namespace GenMarkdown.Tests
             var table = new Table(ColumnAlignment.Left, ColumnAlignment.Right, ColumnAlignment.Center);
             table.Add(new TableRow("c1", "c2", "c3"));
             var lines = table.ToString().Split("\r\n");
-            Assert.Equal("|---|---:|:---:|", lines[1]);
+            Assert.Equal("|:---|---:|:---:|", lines[1]);
         }
     }
 }

@@ -13,6 +13,12 @@
         public int StartingNumber { get; set; }
 
         /// <summary>
+        /// True will emit A,B,C instead of numbers.
+        /// The starting number will be used to determine the starting letter.
+        /// </summary>
+        public bool Lettered { get; set; }
+
+        /// <summary>
         /// Constructor
         /// </summary>
         public OrderedList()
@@ -37,12 +43,30 @@
         /// <returns></returns>
         protected override string GetPrefix(MarkdownFormatting formatting, int index)
         {
-            int value = formatting?.OrderedListUsesSequence==true
-                ? StartingNumber + index
-                : index == 0
-                    ? StartingNumber
-                    : 1;
-            return $"{value}. ";
+            if (Lettered)
+            {
+                int value = StartingNumber + index;
+                string result = "";
+                if (value > 26)
+                {
+                    result += (char)('a' + value / 26 - 1);
+                    result += (char)('a' + value % 26 - 1);
+                }
+                else
+                {
+                    result += (char)('a' + value - 1);
+                }
+                return formatting?.OrderedListUsesSequence == true || index == 0 ? $"{result}. " : "a. ";
+            }
+            else
+            {
+                int value = formatting?.OrderedListUsesSequence == true
+                    ? StartingNumber + index
+                    : index == 0
+                        ? StartingNumber
+                        : 1;
+                return $"{value}. ";
+            }
         }
     }
 }

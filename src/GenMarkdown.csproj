@@ -1,11 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <RootNamespace>Julmar.GenMarkdown</RootNamespace>
 	<PackOnBuild>true</PackOnBuild>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-	<PackageVersion>1.0.5.5</PackageVersion>
+	<PackageVersion>1.0.6.0-preview</PackageVersion>
     <PackageId>Julmar.GenMarkdown</PackageId>
     <Authors>Mark Smith</Authors>
     <Company>julmar.com</Company>
@@ -20,8 +20,13 @@
 	<PackageLicenseExpression>MIT</PackageLicenseExpression>
 	<SynchReleaseVersion>false</SynchReleaseVersion>
   </PropertyGroup>
+	
+  <PropertyGroup>
+	<IncludeSymbols>true</IncludeSymbols>
+	<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
 
-  <ItemGroup>
+	<ItemGroup>
     <None Include="..\README.md">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>

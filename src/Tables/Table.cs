@@ -100,7 +100,9 @@ namespace Julmar.GenMarkdown
                                 sb.Append($"{new string('-', formatting?.PrettyPipeTables == true ? widths[i]-1 : 3)}:");
                                 break;
                             case ColumnAlignment.Left:
-                            default: // left
+                                sb.Append($":{new string('-', formatting?.PrettyPipeTables == true ? widths[i-1] : 3)}");
+                                break;
+                            default: // unspecified
                                 sb.Append(new string('-', formatting?.PrettyPipeTables == true ? widths[i] : 3));
                                 break;
                         }

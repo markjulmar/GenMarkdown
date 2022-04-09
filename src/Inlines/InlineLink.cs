@@ -69,16 +69,17 @@ namespace Julmar.GenMarkdown
                 return;
             }
 
-            if (Bold) writer.Write("**");
-            if (Italic) writer.Write("*");
-
             writer.Write("[");
 
             if (!string.IsNullOrEmpty(Text))
             {
+                if (Bold) writer.Write("**");
+                if (Italic) writer.Write("*");
                 if (Code) writer.Write("`");
                 writer.Write(Text);
                 if (Code) writer.Write("`");
+                if (Italic) writer.Write("*");
+                if (Bold) writer.Write("**");
             }
 
             writer.Write($"]({Url}");
@@ -87,9 +88,6 @@ namespace Julmar.GenMarkdown
                 writer.Write(" \"" + Title + "\"");
             
             writer.Write(")");
-
-            if (Bold) writer.Write("**");
-            if (Italic) writer.Write("*");
         }
     }
 }

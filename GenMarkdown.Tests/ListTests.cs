@@ -24,6 +24,50 @@ namespace GenMarkdown.Tests
         }
 
         [Fact]
+        public void LetteredRendersAAA()
+        {
+            var list = new OrderedList() {Lettered = true};
+            list.Add("one");
+            list.Add("two");
+            list.Add("three");
+
+            Assert.Equal(3, list.Count);
+            Assert.Equal("a. one\r\na. two\r\na. three\r\n\r\n", list.ToString());
+        }
+
+        [Fact]
+        public void LetteredSequenceRendersABC()
+        {
+            var list = new OrderedList() { Lettered = true };
+            list.Add("one");
+            list.Add("two");
+            list.Add("three");
+
+            Assert.Equal(3, list.Count);
+
+            var sw = new StringWriter();
+            list.Write(sw, new MarkdownFormatting { OrderedListUsesSequence = true });
+
+            Assert.Equal("a. one\r\nb. two\r\nc. three\r\n\r\n", sw.ToString());
+        }
+
+        [Fact]
+        public void StartNumberAffectsLetteredList()
+        {
+            var list = new OrderedList() { Lettered = true, StartingNumber = 100 };
+            list.Add("one");
+            list.Add("two");
+            list.Add("three");
+
+            Assert.Equal(3, list.Count);
+
+            var sw = new StringWriter();
+            list.Write(sw, new MarkdownFormatting { OrderedListUsesSequence = true });
+
+            Assert.Equal("cv. one\r\ncw. two\r\ncx. three\r\n\r\n", sw.ToString());
+        }
+
+        [Fact]
         public void ListWithMultipleBlocks()
         {
             var list = new OrderedList

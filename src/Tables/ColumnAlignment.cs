@@ -6,14 +6,14 @@
     public enum ColumnAlignment
     {
         /// <summary>
-        /// Default (left)
+        /// Default (unspecified, but will render left)
         /// </summary>
         Default = 0,
 
         /// <summary>
         /// Left aligned
         /// </summary>
-        Left = 0,
+        Left,
         
         /// <summary>
         /// Centered

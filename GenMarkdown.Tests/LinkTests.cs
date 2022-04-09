@@ -38,7 +38,7 @@ namespace GenMarkdown.Tests
         public void UrlSameAsTextWithBoldEmitsComplexLink()
         {
             InlineLink link = new InlineLink("www.microsoft.com", "www.microsoft.com") { Bold = true };
-            Assert.Equal("**[www.microsoft.com](www.microsoft.com)**", link.ToString());
+            Assert.Equal("[**www.microsoft.com**](www.microsoft.com)", link.ToString());
         }
 
         [Fact]
@@ -57,24 +57,45 @@ namespace GenMarkdown.Tests
         }
 
         [Fact]
-        public void LinkRendersBold()
+        public void LinkWithNoTextIgnoresBold()
         {
             var link = new Link("", "#1") {Bold = true};
-            Assert.Equal("**[](#1)**\r\n\r\n", link.ToString());
+            Assert.Equal("[](#1)\r\n\r\n", link.ToString());
+        }
+
+        [Fact]
+        public void LinkWithNoTextIgnoresItalic()
+        {
+            var link = new Link("", "#1") { Italic = true };
+            Assert.Equal("[](#1)\r\n\r\n", link.ToString());
+        }
+
+        [Fact]
+        public void LinkWithNoTextIgnoresBoldAndItalic()
+        {
+            var link = new Link("", "#1") { Italic = true, Bold = true };
+            Assert.Equal("[](#1)\r\n\r\n", link.ToString());
+        }
+
+        [Fact]
+        public void LinkRendersBold()
+        {
+            var link = new Link("Test", "#1") { Bold = true };
+            Assert.Equal("[**Test**](#1)\r\n\r\n", link.ToString());
         }
 
         [Fact]
         public void LinkRendersItalic()
         {
-            var link = new Link("", "#1") { Italic = true };
-            Assert.Equal("*[](#1)*\r\n\r\n", link.ToString());
+            var link = new Link("Test", "#1") { Italic = true };
+            Assert.Equal("[*Test*](#1)\r\n\r\n", link.ToString());
         }
 
         [Fact]
         public void LinkRendersBoldAndItalic()
         {
-            var link = new Link("", "#1") { Italic = true, Bold = true };
-            Assert.Equal("***[](#1)***\r\n\r\n", link.ToString());
+            var link = new Link("Test", "#1") { Italic = true, Bold = true };
+            Assert.Equal("[***Test***](#1)\r\n\r\n", link.ToString());
         }
 
         [Fact]
@@ -82,6 +103,27 @@ namespace GenMarkdown.Tests
         {
             var link = new Link("Test", "#1") { Code = true };
             Assert.Equal("[`Test`](#1)\r\n\r\n", link.ToString());
+        }
+
+        [Fact]
+        public void LinkRendersCodeBold()
+        {
+            var link = new Link("Test", "#1") { Code = true, Bold = true };
+            Assert.Equal("[**`Test`**](#1)\r\n\r\n", link.ToString());
+        }
+
+        [Fact]
+        public void LinkRendersCodeItalic()
+        {
+            var link = new Link("Test", "#1") { Code = true, Italic = true };
+            Assert.Equal("[*`Test`*](#1)\r\n\r\n", link.ToString());
+        }
+
+        [Fact]
+        public void LinkRendersCodeBoldItalic()
+        {
+            var link = new Link("Test", "#1") { Code = true, Italic = true, Bold = true };
+            Assert.Equal("[***`Test`***](#1)\r\n\r\n", link.ToString());
         }
 
         [Fact]
