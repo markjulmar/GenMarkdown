@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 
 namespace Julmar.GenMarkdown
 {
@@ -7,6 +8,15 @@ namespace Julmar.GenMarkdown
     /// </summary>
     public abstract class MarkdownInline
     {
+        private Dictionary<string, object> metadata;
+
+        /// <summary>
+        /// Optional metadata - this is strictly for the user of the library
+        /// to associate bits of data as the Markdown document is being created.
+        /// </summary>
+        public IDictionary<string, object> Metadata
+            => metadata ??= new Dictionary<string, object>();
+
         /// <summary>
         /// Text being rendered
         /// </summary>
