@@ -57,6 +57,13 @@ namespace Julmar.GenMarkdown
         /// <param name="formatting">optional formatting</param>
         public override void Write(TextWriter writer, MarkdownFormatting formatting)
         {
+            if (Children.Count == 0)
+            {
+                // Empty paragraph
+                writer.WriteLine();
+                return;
+            }
+
             var sw = new StringWriter();
             foreach (var child in Children)
                 child.Write(sw, formatting);

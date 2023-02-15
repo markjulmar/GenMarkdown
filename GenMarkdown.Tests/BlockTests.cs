@@ -23,6 +23,16 @@ namespace GenMarkdown.Tests
         }
 
         [Fact]
+        void EmptyParagraphEmitsSingleCrLf()
+        {
+            var block = new Paragraph();
+            Assert.Equal(Environment.NewLine, block.ToString());
+
+            block = new Paragraph("");
+            Assert.Equal(LineEnd, block.ToString());
+        }
+
+        [Fact]
         void IndentMustBeBetween0And3()
         {
             var block = new Paragraph();

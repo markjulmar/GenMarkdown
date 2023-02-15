@@ -5,13 +5,13 @@
     <RootNamespace>Julmar.GenMarkdown</RootNamespace>
 	<PackOnBuild>true</PackOnBuild>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-	<PackageVersion>1.0.6.1-preview</PackageVersion>
-    <PackageId>Julmar.GenMarkdown</PackageId>
+	<PackageVersion>1.0.6.2-preview</PackageVersion>
+    <PackageId>Julmar.GenMarBkdown</PackageId>
     <Authors>Mark Smith</Authors>
     <Company>julmar.com</Company>
 	<Owners>julmar.com</Owners>
     <Description>A .NET library to create Markdown documents.</Description>
-    <Copyright>(C) 2021-2022 julmar.com</Copyright>
+    <Copyright>(C) 2021-2023 julmar.com</Copyright>
     <PackageProjectUrl>https://github.com/markjulmar/GenMarkdown</PackageProjectUrl>
 	<Summary>.NET Core library to create Markdown documents</Summary>
     <PackageReadmeFile>README.md</PackageReadmeFile>
