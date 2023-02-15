@@ -6,7 +6,7 @@
 	<PackOnBuild>true</PackOnBuild>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 	<PackageVersion>1.0.6.2-preview</PackageVersion>
-    <PackageId>Julmar.GenMarBkdown</PackageId>
+    <PackageId>Julmar.GenMarkdown</PackageId>
     <Authors>Mark Smith</Authors>
     <Company>julmar.com</Company>
 	<Owners>julmar.com</Owners>
