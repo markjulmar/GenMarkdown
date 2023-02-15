@@ -59,8 +59,6 @@ namespace Julmar.GenMarkdown
         {
             if (Children.Count == 0)
             {
-                // Empty paragraph
-                writer.WriteLine();
                 return;
             }
 

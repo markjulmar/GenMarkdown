@@ -23,13 +23,32 @@ namespace GenMarkdown.Tests
         }
 
         [Fact]
-        void EmptyParagraphEmitsSingleCrLf()
+        void ParagraphWithTextAndSeparatorEmitsNothingBetweenParagraphs()
+        {
+            var doc = new MarkdownDocument();
+            doc.Add(new Paragraph("Some Text."));
+            doc.Add(new Paragraph());
+            doc.Add(new Paragraph("More text."));
+
+            string expected = "Some Text.\r\n\r\nMore text.\r\n";
+            Assert.Equal(expected, doc.ToString());
+        }
+
+        [Fact]
+        void EmptyParagraphEmitsNoCrLf()
         {
             var block = new Paragraph();
-            Assert.Equal(Environment.NewLine, block.ToString());
+            Assert.Equal(string.Empty, block.ToString());
 
             block = new Paragraph("");
             Assert.Equal(LineEnd, block.ToString());
+        }
+
+        [Fact]
+        void BlankLineEmitsSingleCrLf()
+        {
+            var block = new BlankLine();
+            Assert.Equal("\r\n", block.ToString());
         }
 
         [Fact]
